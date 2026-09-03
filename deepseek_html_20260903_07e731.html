@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Test Premis 2026 · Oposició</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #f2f4f8;
+            padding: 16px 12px 40px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #1e293b;
+        }
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            padding: 24px 20px 30px;
+            transition: all 0.2s;
+        }
+        h1 {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .subhead {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e9edf2;
+            padding-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .progress {
+            font-weight: 600;
+            color: #0f172a;
+            background: #eef2f6;
+            padding: 4px 14px;
+            border-radius: 30px;
+            font-size: 14px;
+        }
+        .question-number {
+            font-weight: 700;
+            color: #2563eb;
+            font-size: 15px;
+            margin-bottom: 6px;
+        }
+        .question-text {
+            font-size: 19px;
+            font-weight: 600;
+            line-height: 1.4;
+            margin-bottom: 20px;
+            min-height: 3em;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+        .option {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 14px 18px;
+            font-size: 17px;
+            font-weight: 500;
+            transition: all 0.15s;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .option:active {
+            transform: scale(0.98);
+        }
+        .option .letter {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            border-radius: 30px;
+            background: #e2e8f0;
+            color: #1e293b;
+            font-weight: 700;
+            font-size: 15px;
+            flex-shrink: 0;
+        }
+        .option.selected {
+            border-color: #2563eb;
+            background: #eff6ff;
+        }
+        .option.selected .letter {
+            background: #2563eb;
+            color: white;
+        }
+        .option.correct {
+            border-color: #16a34a;
+            background: #f0fdf4;
+        }
+        .option.correct .letter {
+            background: #16a34a;
+            color: white;
+        }
+        .option.wrong {
+            border-color: #dc2626;
+            background: #fef2f2;
+        }
+        .option.wrong .letter {
+            background: #dc2626;
+            color: white;
+        }
+        .option.disabled {
+            cursor: default;
+            opacity: 0.9;
+        }
+        .option.disabled:active {
+            transform: none;
+        }
+        .feedback {
+            background: #f1f5f9;
+            border-radius: 16px;
+            padding: 16px 18px;
+            margin-top: 6px;
+            margin-bottom: 20px;
+            display: none;
+            border-left: 4px solid #94a3b8;
+        }
+        .feedback.show {
+            display: block;
+        }
+        .feedback .badge {
+            display: inline-block;
+            font-weight: 700;
+            font-size: 14px;
+            padding: 2px 14px;
+            border-radius: 30px;
+            margin-bottom: 8px;
+        }
+        .badge.correct-badge {
+            background: #dcfce7;
+            color: #166534;
+        }
+        .badge.wrong-badge {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .feedback .justification {
+            font-size: 15px;
+            line-height: 1.5;
+            margin: 6px 0;
+        }
+        .feedback .mnemonic {
+            background: #fef9c3;
+            border-radius: 12px;
+            padding: 10px 14px;
+            margin-top: 12px;
+            font-size: 15px;
+            border: 1px solid #fde68a;
+            color: #854d0e;
+        }
+        .feedback .mnemonic strong {
+            font-weight: 700;
+        }
+        .actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 4px;
+        }
+        .btn {
+            flex: 1;
+            min-width: 120px;
+            background: #eef2f6;
+            border: none;
+            border-radius: 40px;
+            padding: 14px 18px;
+            font-weight: 600;
+            font-size: 17px;
+            color: #1e293b;
+            cursor: pointer;
+            transition: all 0.15s;
+            text-align: center;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .btn:active {
+            transform: scale(0.96);
+        }
+        .btn-primary {
+            background: #2563eb;
+            color: white;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+        }
+        .btn-primary:disabled {
+            opacity: 0.5;
+            transform: none;
+            box-shadow: none;
+        }
+        .btn-secondary {
+            background: #e2e8f0;
+        }
+        .btn-success {
+            background: #16a34a;
+            color: white;
+        }
+        .result {
+            text-align: center;
+            padding: 20px 0 10px;
+        }
+        .result .score {
+            font-size: 52px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+        .result .label {
+            font-size: 18px;
+            color: #475569;
+        }
+        .result .message {
+            margin-top: 12px;
+            font-size: 17px;
+            font-weight: 500;
+        }
+        .hidden {
+            display: none !important;
+        }
+        .mt-16 {
+            margin-top: 16px;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .flex {
+            display: flex;
+            gap: 10px;
+        }
+        .gap-8 {
+            gap: 8px;
+        }
+        /* Ajustes per a pantalles petites */
+        @media (max-width: 480px) {
+            .container {
+                padding: 18px 14px 22px;
+            }
+            .question-text {
+                font-size: 17px;
+            }
+            .option {
+                font-size: 15px;
+                padding: 12px 14px;
+            }
+            .btn {
+                font-size: 15px;
+                padding: 12px 10px;
+                min-width: 90px;
+            }
+        }
+        /* Per quan es mostren les respostes correctes/incorrectes, evitem clics accidentals */
+        .option.disabled {
+            pointer-events: none;
+        }
+        /* Scroll suau */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="app">
+        <!-- Capçalera -->
+        <h1>🎬 Test Premis</h1>
+        <div class="subhead">
+            <span>30 preguntes · oposició</span>
+            <span class="progress" id="progressLabel">1 / 30</span>
+        </div>
+
+        <!-- Pregunta -->
+        <div id="questionArea">
+            <div class="question-number" id="qNumber">Pregunta 1</div>
+            <div class="question-text" id="qText">Carregant...</div>
+            <div class="options" id="optionsContainer"></div>
+
+            <!-- Feedback -->
+            <div class="feedback" id="feedback">
+                <div>
+                    <span class="badge" id="badgeResult">✅ Correcte</span>
+                </div>
+                <div class="justification" id="justificationText"></div>
+                <div class="mnemonic" id="mnemonicText"><strong>🧠 Regla mnemotècnica:</strong> </div>
+            </div>
+
+            <!-- Botons -->
+            <div class="actions">
+                <button class="btn btn-secondary" id="prevBtn" disabled>← Anterior</button>
+                <button class="btn btn-primary" id="checkBtn">Comprovar</button>
+                <button class="btn btn-primary" id="nextBtn" style="display:none;">Següent →</button>
+            </div>
+        </div>
+
+        <!-- Resultat final -->
+        <div id="resultArea" class="result hidden">
+            <div class="score" id="finalScore">0</div>
+            <div class="label">encerts de 30</div>
+            <div class="message" id="finalMessage">😊 Bon treball!</div>
+            <button class="btn btn-success mt-16" id="resetBtn">🔄 Tornar a començar</button>
+        </div>
+    </div>
+
+    <script>
+        // ----- DADES DEL TEST (extretes del PDF) -----
+        const preguntes = [{
+            id: 1,
+            pregunta: "Quina pel·lícula va guanyar el Goya a la Millor Pel·lícula l'any 2026?",
+            opcions: ["Sirát", "Los domingos", "Maspalomas"],
+            correcta: 1, // índex 1 = b
+            justificacio: "Los domingos va obtenir el Goya a la Millor Pel·lícula en la 40a edició dels premis. (Academia de cine)",
+            mnemotecnia: "Los domingos → els diumenges són per als Goya (i per descansar, però aquest any van guanyar)."
+        }, {
+            id: 2,
+            pregunta: "En quina ciutat es va celebrar la 40a edició dels Premis Goya?",
+            opcions: ["Madrid", "Barcelona", "Sevilla"],
+            correcta: 1,
+            justificacio: "La 40a edició dels Goya es va celebrar a Barcelona. (Academia de cine)",
+            mnemotecnia: "Barcelona comença per B, com la 40a edició (B de 'Bona ciutat')."
+        }, {
+            id: 3,
+            pregunta: "Qui va guanyar el Goya 2026 a la Millor Direcció?",
+            opcions: ["Alauda Ruiz de Azúa", "Albert Serra", "Rodrigo Sorogoyen"],
+            correcta: 0,
+            justificacio: "Alauda Ruiz de Azúa va guanyar el Goya a la Millor Direcció per Los domingos. (Academia de cine)",
+            mnemotecnia: "Alauda sona a 'alada' → va alçar el vol amb el Goya a la direcció."
+        }, {
+            id: 4,
+            pregunta: "Qui va rebre el Goya d'Honor 2026?",
+            opcions: ["Gonzalo Suárez", "Pedro Almodóvar", "José Sacristán"],
+            correcta: 0,
+            justificacio: "Gonzalo Suárez va rebre el Goya d'Honor 2026. (Academia de cine)",
+            mnemotecnia: "Gonzalo Suárez → Goya d'Honor, les dues G (Gonzalo i Goya)."
+        }, {
+            id: 5,
+            pregunta: "Quina actriu va rebre el Goya Internacional 2026?",
+            opcions: ["Meryl Streep", "Susan Sarandon", "Jodie Foster"],
+            correcta: 1,
+            justificacio: "Susan Sarandon, l'actriu nord-americana, va rebre el Goya Internacional 2026. (Academia de cine)",
+            mnemotecnia: "Susan Sarandon → 'Sara' i 'don' (dona) → internacional."
+        }, {
+            id: 6,
+            pregunta: "Quina pel·lícula va guanyar l'Oscar a la Millor Pel·lícula el 2026?",
+            opcions: ["Sinners", "Hamnet", "One Battle After Another"],
+            correcta: 2,
+            justificacio: "One Battle After Another va guanyar l'Oscar a la Millor Pel·lícula el 2026. (oscars.org)",
+            mnemotecnia: "One Battle After Another → OBA, com 'Oscar de la Batalla'."
+        }, {
+            id: 7,
+            pregunta: "Qui va guanyar l'Oscar 2026 al millor actor protagonista?",
+            opcions: ["Michael B. Jordan", "Leonardo DiCaprio", "Timothée Chalamet"],
+            correcta: 0,
+            justificacio: "Michael B. Jordan va guanyar l'Oscar al millor actor protagonista per Sinners. (oscars.org)",
+            mnemotecnia: "Michael B. Jordan → 'Jordan' juga a 'Sinners' (pecadors), com si fos un joc de paraules."
+        }, {
+            id: 8,
+            pregunta: "Qui va guanyar l'Oscar 2026 a la millor actriu protagonista?",
+            opcions: ["Emma Stone", "Jessie Buckley", "Rose Byrne"],
+            correcta: 1,
+            justificacio: "Jessie Buckley va guanyar l'Oscar a la millor actriu protagonista per Hamnet. (oscars.org)",
+            mnemotecnia: "Jessie Buckley → 'Buckley' sona a 'buck' (cérvol) i 'Hamnet' és de Shakespeare, com un cérvol a l'obra."
+        }, {
+            id: 9,
+            pregunta: "Quina pel·lícula va guanyar l'Oscar 2026 a la millor pel·lícula internacional?",
+            opcions: ["Sirāt", "Sentimental Value", "The Secret Agent"],
+            correcta: 1,
+            justificacio: "Sentimental Value (Noruega) va guanyar l'Oscar a la millor pel·lícula internacional. (oscars.org)",
+            mnemotecnia: "Sentimental Value → 'Valor sentimental' i Noruega → fiords i emocions."
+        }, {
+            id: 10,
+            pregunta: "Quin director va guanyar l'Oscar 2026 a la millor direcció?",
+            opcions: ["Paul Thomas Anderson", "Ryan Coogler", "Guillermo del Toro"],
+            correcta: 0,
+            justificacio: "Paul Thomas Anderson va guanyar l'Oscar a la millor direcció per One Battle After Another. (oscars.org)",
+            mnemotecnia: "Paul Thomas Anderson → 'Anderson' com 'And the Oscar goes to...'"
+        }, {
+            id: 11,
+            pregunta: "Quina pel·lícula va guanyar el BAFTA 2026 a la millor pel·lícula?",
+            opcions: ["Hamnet", "One Battle After Another", "Sinners"],
+            correcta: 1,
+            justificacio: "One Battle After Another va guanyar el BAFTA a la millor pel·lícula el 2026. (Bafta)",
+            mnemotecnia: "Mateixa que l'Oscar → One Battle After Another també triomfa als BAFTA."
+        }, {
+            id: 12,
+            pregunta: "Qui va guanyar el BAFTA 2026 a la millor actriu protagonista?",
+            opcions: ["Jessie Buckley", "Teyana Taylor", "Wunmi Mosaku"],
+            correcta: 0,
+            justificacio: "Jessie Buckley va obtenir el BAFTA a la millor actriu protagonista per Hamnet. (Bafta)",
+            mnemotecnia: "Jessie Buckley repeteix als BAFTA, com un doblet."
+        }, {
+            id: 13,
+            pregunta: "Quin artista va guanyar el Grammy 2026 a l'Àlbum de l'Any?",
+            opcions: ["Bad Bunny", "Justin Bieber", "Kendrick Lamar"],
+            correcta: 0,
+            justificacio: "Bad Bunny va guanyar l'Àlbum de l'Any als Grammy 2026. (Grammy)",
+            mnemotecnia: "Bad Bunny → el conill dolent es va emportar l'àlbum de l'any."
+        }, {
+            id: 14,
+            pregunta: "Quin és el títol de l'àlbum que va guanyar el Grammy 2026 a l'Àlbum de l'Any?",
+            opcions: ["SWAG", "DeBÍ TiRAR Más FOToS", "Man's Best Friend"],
+            correcta: 1,
+            justificacio: "DeBÍ TiRAR Más FOToS és l'àlbum de Bad Bunny que va obtenir el Grammy. (Grammy)",
+            mnemotecnia: "DeBÍ TiRAR Más FOToS → 'tirar fotos' és una acció, recorda l'àlbum de Bad Bunny."
+        }, {
+            id: 15,
+            pregunta: "Qui va guanyar el Grammy 2026 a Millor Artista Novell?",
+            opcions: ["Olivia Dean", "Sabrina Carpenter", "Doechi"],
+            correcta: 0,
+            justificacio: "Olivia Dean va guanyar el Grammy a Millor Artista Novell. (Grammy)",
+            mnemotecnia: "Olivia Dean → 'Dean' com a 'degana' dels novells."
+        }, {
+            id: 16,
+            pregunta: "Quina cançó va guanyar el Grammy 2026 a la Gravació de l'Any?",
+            opcions: ["APT.", "DtMF", "Not Like Us"],
+            correcta: 1,
+            justificacio: "DtMF, de Bad Bunny, va obtenir el Grammy a la Gravació de l'Any. (Grammy)",
+            mnemotecnia: "DtMF → les sigles podrien ser 'Dale Tu Música Favorita' (recorda que és de Bad Bunny)."
+        }, {
+            id: 17,
+            pregunta: "Quin artista va guanyar el Latin Grammy 2025 a la Gravació de l'Any?",
+            opcions: ["Alejandro Sanz", "Bad Bunny", "Rauw Alejandro"],
+            correcta: 0,
+            justificacio: "Alejandro Sanz, amb 'Palmeras En El Jardín', va guanyar la Gravació de l'Any als Latin Grammy 2025. (Latin Grammys)",
+            mnemotecnia: "Alejandro Sanz → 'Palmeras' (palmeres) al jardí, com un paisatge que recorda."
+        }, {
+            id: 18,
+            pregunta: "Quina cançó va guanyar el Latin Grammy 2025 a la Cançó de l'Any?",
+            opcions: ["Palmeras En El Jardín", "Si Antes Te Hubiera Conocido", "Baile Inolvidable"],
+            correcta: 1,
+            justificacio: "Si Antes Te Hubiera Conocido va guanyar el Latin Grammy a la Cançó de l'Any. (Latin Grammys)",
+            mnemotecnia: "Si Antes Te Hubiera Conocido → com si fos una cançó de penediment, fàcil de recordar."
+        }, {
+            id: 19,
+            pregunta: "Quin artista va rebre el premi Ondas 2025 a la trajectòria musical?",
+            opcions: ["Manuel Alejandro", "Alejandro Sanz", "Joan Manuel Serrat"],
+            correcta: 0,
+            justificacio: "Manuel Alejandro va rebre el Premi Ondas Especial del Jurat de Música el 2025 per la seva trajectòria. (Premios Ondas)",
+            mnemotecnia: "Manuel Alejandro → trajectòria llarga com el seu nom complet."
+        }, {
+            id: 20,
+            pregunta: "Quin grup o artista va rebre el Premi Ondas 2025 com a «Fenomen musical de l'any»?",
+            opcions: ["Ginebras", "La Oreja de Van Gogh", "Amaral"],
+            correcta: 0,
+            justificacio: "Ginebras van ser reconegudes com a «Fenomen musical de l'any» als Ondas 2025. (Premios Ondas)",
+            mnemotecnia: "Ginebras → el grup que va ser 'el fenomen' (com una beguda que triomfa)."
+        }, {
+            id: 21,
+            pregunta: "Quin programa va guanyar el Premi Ondas 2025 al Millor Programa de Ràdio?",
+            opcions: ["Versió RAC1", "Cafè d'idees", "La Ventana"],
+            correcta: 0,
+            justificacio: "Versió RAC1 va guanyar el Premi Ondas Nacional de Ràdio al Millor Programa. (Premios Ondas)",
+            mnemotecnia: "Versió RAC1 → 'Versió' com a 'programa estrella' de la ràdio."
+        }, {
+            id: 22,
+            pregunta: "Quin programa va guanyar el Premi Ondas 2025 al Millor Programa de Proximitat?",
+            opcions: ["Versió RAC1", "Cafè d'idees", "La Ventana"],
+            correcta: 1,
+            justificacio: "Cafè d'idees, de Ràdio 4, va obtenir el premi al Millor Programa de Proximitat. (Premios Ondas)",
+            mnemotecnia: "Cafè d'idees → 'cafè' és de proximitat, a la vora."
+        }, {
+            id: 23,
+            pregunta: "Quin programa va rebre el Premi Ondas 2025 a la Millor Programació Especial pels seus continguts durant l'apagada del 28 d'abril?",
+            opcions: ["Versió RAC1", "Programas especiales por el apagón del 28 de abril", "Informatius RNE"],
+            correcta: 1,
+            justificacio: "Programas especiales por el apagón del 28 de abril va ser reconegut com a Millor Programació Especial. (Premios Ondas)",
+            mnemotecnia: "Programes especials → l'apagada el 28 d'abril, com un recordatori d'aquell dia."
+        }, {
+            id: 24,
+            pregunta: "Qui va rebre el Premi Ondas 2025 a la trajectòria o millor labor professional en ràdio?",
+            opcions: ["Iñaki Gabilondo", "Isaías Lafuente", "Carlos Herrera"],
+            correcta: 1,
+            justificacio: "Isaías Lafuente va obtenir el premi a la Trajectòria o Millor Labor Professional. (Premios Ondas)",
+            mnemotecnia: "Isaías Lafuente → 'Lafuente' com 'la font' de la ràdio."
+        }, {
+            id: 25,
+            pregunta: "Quin podcast va guanyar el Premi Ondas Nacional de Ràdio 2025 al Millor Podcast?",
+            opcions: ["La Ruina", "Se llamaba como yo", "Criminopatía"],
+            correcta: 1,
+            justificacio: "Se llamaba como yo va guanyar el Premi Ondas Nacional de Ràdio al Millor Podcast. (Premios Ondas)",
+            mnemotecnia: "Se llamaba como yo → el títol és autobiogràfic, fàcil de lligar."
+        }, {
+            id: 26,
+            pregunta: "Quin podcast va guanyar el Premi Ondas del Podcast 2025 al Millor Podcast de l'Any?",
+            opcions: ["La Ruina", "El Tigre", "HUMO"],
+            correcta: 0,
+            justificacio: "La Ruina va guanyar el Premi Ondas del Podcast al Millor Podcast de l'Any. (podcast.premiosondas.com)",
+            mnemotecnia: "La Ruina → el podcast de l'any, com si fos la 'ruïna' de la resta."
+        }, {
+            id: 27,
+            pregunta: "Quin programa va guanyar el Premi Ondas 2025 al Millor Programa de Televisió?",
+            opcions: ["La Revuelta", "Celeste", "Cifras y letras"],
+            correcta: 0,
+            justificacio: "La Revuelta és la resposta correcta per al Millor Programa de Televisió dels Ondas 2025.",
+            mnemotecnia: "La Revuelta → una revolta televisiva que va triomfar."
+        }, {
+            id: 28,
+            pregunta: "On es va celebrar el Festival d'Eurovisió 2026?",
+            opcions: ["Viena", "Budapest", "Sofia"],
+            correcta: 0,
+            justificacio: "Eurovisió 2026 es va celebrar al Wiener Stadthalle de Viena. (Eurovision Song Contest)",
+            mnemotecnia: "Viena → ciutat dels valsos, i Eurovisió és un festival de música."
+        }, {
+            id: 29,
+            pregunta: "Quin país va guanyar Eurovisió 2026?",
+            opcions: ["França", "Bulgària", "Suècia"],
+            correcta: 1,
+            justificacio: "Bulgària, amb DARA, va guanyar Eurovisió 2026. Va ser la primera victòria del país. (Eurovision Song Contest)",
+            mnemotecnia: "Bulgària → primera victòria, com 'B' de 'Bulgària' i 'B' de 'Bona notícia'."
+        }, {
+            id: 30,
+            pregunta: "Quin era el títol de la cançó guanyadora d'Eurovisió 2026?",
+            opcions: ["Bangaranga", "Golden", "Espresso Macchiato"],
+            correcta: 0,
+            justificacio: "DARA va guanyar Eurovisió 2026 amb 'Bangaranga' i 516 punts. (Eurovision Song Contest)",
+            mnemotecnia: "Bangaranga → sona a 'bang' i 'ranga', una cançó que va donar la victòria a Bulgària."
+        }];
+
+        // ----- ESTAT -----
+        let currentIndex = 0;
+        let answers = new Array(preguntes.length).fill(null); // índex de l'opció seleccionada
+        let revealed = new Array(preguntes.length).fill(false); // si s'ha comprovat
+        let score = 0;
+        let testFinished = false;
+
+        // Elements DOM
+        const questionArea = document.getElementById('questionArea');
+        const resultArea = document.getElementById('resultArea');
+        const progressLabel = document.getElementById('progressLabel');
+        const qNumber = document.getElementById('qNumber');
+        const qText = document.getElementById('qText');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const feedback = document.getElementById('feedback');
+        const badgeResult = document.getElementById('badgeResult');
+        const justificationText = document.getElementById('justificationText');
+        const mnemonicText = document.getElementById('mnemonicText');
+        const checkBtn = document.getElementById('checkBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const finalScore = document.getElementById('finalScore');
+        const finalMessage = document.getElementById('finalMessage');
+
+        // ----- FUNCIONS -----
+        function renderQuestion(index) {
+            const q = preguntes[index];
+            qNumber.textContent = `Pregunta ${index + 1}`;
+            qText.textContent = q.pregunta;
+            progressLabel.textContent = `${index + 1} / ${preguntes.length}`;
+
+            // Generar opcions
+            optionsContainer.innerHTML = '';
+            const letters = ['a', 'b', 'c'];
+            q.opcions.forEach((text, i) => {
+                const div = document.createElement('div');
+                div.className = 'option';
+                if (answers[index] === i) div.classList.add('selected');
+                if (revealed[index]) {
+                    div.classList.add('disabled');
+                    if (i === q.correcta) div.classList.add('correct');
+                    if (answers[index] === i && i !== q.correcta) div.classList.add('wrong');
+                }
+                div.innerHTML = `<span class="letter">${letters[i]}</span> ${text}`;
+                div.dataset.index = i;
+                if (!revealed[index]) {
+                    div.addEventListener('click', () => selectOption(index, i));
+                }
+                optionsContainer.appendChild(div);
+            });
+
+            // Feedback
+            if (revealed[index]) {
+                const isCorrect = answers[index] === q.correcta;
+                badgeResult.textContent = isCorrect ? '✅ Correcte' : '❌ Incorrecte';
+                badgeResult.className = `badge ${isCorrect ? 'correct-badge' : 'wrong-badge'}`;
+                justificationText.textContent = q.justificacio;
+                mnemonicText.innerHTML = `<strong>🧠 Regla mnemotècnica:</strong> ${q.mnemotecnia}`;
+                feedback.classList.add('show');
+                checkBtn.style.display = 'none';
+                nextBtn.style.display = 'inline-block';
+            } else {
+                feedback.classList.remove('show');
+                checkBtn.style.display = 'inline-block';
+                nextBtn.style.display = 'none';
+            }
+
+            // Botó següent / anterior
+            nextBtn.disabled = (index === preguntes.length - 1);
+            prevBtn.disabled = (index === 0);
+            // Si és l'última i ja revelada, canviar text del next a "Veure resultat"
+            if (index === preguntes.length - 1 && revealed[index]) {
+                nextBtn.textContent = '📊 Resultat';
+                nextBtn.onclick = showResults;
+            } else {
+                nextBtn.textContent = 'Següent →';
+                nextBtn.onclick = () => goTo(index + 1);
+            }
+        }
+
+        function selectOption(qIndex, optIndex) {
+            if (revealed[qIndex]) return;
+            // Actualitzar respostes
+            answers[qIndex] = optIndex;
+            // Re-renderitzar per mostrar selecció
+            renderQuestion(qIndex);
+        }
+
+        function checkAnswer() {
+            const index = currentIndex;
+            if (answers[index] === null) {
+                alert('Selecciona una opció abans de comprovar.');
+                return;
+            }
+            revealed[index] = true;
+            // Recalcular score
+            score = 0;
+            for (let i = 0; i < preguntes.length; i++) {
+                if (revealed[i] && answers[i] === preguntes[i].correcta) score++;
+            }
+            renderQuestion(index);
+            // Si és l'última, canviar text del next
+            if (index === preguntes.length - 1) {
+                // no cal, es farà a render
+            }
+        }
+
+        function goTo(index) {
+            if (index < 0 || index >= preguntes.length) return;
+            currentIndex = index;
+            renderQuestion(index);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function showResults() {
+            // Assegurar que totes les preguntes estan revelades (per si algú salta)
+            for (let i = 0; i < preguntes.length; i++) {
+                if (!revealed[i]) {
+                    // Si no s'ha respost, marcar com a no contestada? Ho deixem com a no revelada.
+                }
+            }
+            // Calcular score final
+            score = 0;
+            for (let i = 0; i < preguntes.length; i++) {
+                if (revealed[i] && answers[i] === preguntes[i].correcta) score++;
+            }
+            finalScore.textContent = score;
+            let msg = '';
+            if (score === 30) msg = '🏆 Perfecte! Ets un expert en premis!';
+            else if (score >= 25) msg = '🌟 Molt bé! T’has preparat molt bé.';
+            else if (score >= 20) msg = '👍 Bé, però repassa les que has fallat.';
+            else if (score >= 15) msg = '📚 Necessites estudiar més les dades.';
+            else msg = '💪 Torna a intentar-ho, aquest test és difícil.';
+            finalMessage.textContent = msg;
+            questionArea.classList.add('hidden');
+            resultArea.classList.remove('hidden');
+            testFinished = true;
+        }
+
+        function resetTest() {
+            currentIndex = 0;
+            answers = new Array(preguntes.length).fill(null);
+            revealed = new Array(preguntes.length).fill(false);
+            score = 0;
+            testFinished = false;
+            questionArea.classList.remove('hidden');
+            resultArea.classList.add('hidden');
+            renderQuestion(0);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ----- ESDEVENIMENTS -----
+        checkBtn.addEventListener('click', checkAnswer);
+        prevBtn.addEventListener('click', () => goTo(currentIndex - 1));
+        resetBtn.addEventListener('click', resetTest);
+
+        // Inici
+        renderQuestion(0);
+    </script>
+</body>
+</html>
