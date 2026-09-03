@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Test Premis 2026 · Oposició</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background: #e9edf2;
+            padding: 16px 12px 40px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #1e293b;
+        }
+        .container {
+            max-width: 680px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 32px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.08);
+            padding: 24px 20px 30px;
+            transition: all 0.2s;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #eef2f6;
+            padding-bottom: 14px;
+            margin-bottom: 22px;
+        }
+        .header h1 {
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            color: #0b2b4a;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .header h1 small {
+            font-size: 14px;
+            font-weight: 400;
+            color: #64748b;
+            margin-left: 6px;
+        }
+        .progress-badge {
+            background: #dbe7f3;
+            color: #0b2b4a;
+            font-weight: 600;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 15px;
+            white-space: nowrap;
+        }
+        .question-number {
+            font-weight: 700;
+            color: #1a4b7a;
+            font-size: 15px;
+            margin-bottom: 6px;
+            letter-spacing: 0.3px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .question-text {
+            font-size: 20px;
+            font-weight: 600;
+            line-height: 1.4;
+            margin-bottom: 24px;
+            min-height: 3.2em;
+            color: #0a1e32;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+        .option {
+            background: #f8fafc;
+            border: 2px solid #dce2ea;
+            border-radius: 16px;
+            padding: 16px 20px;
+            font-size: 17px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: all 0.15s;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+            color: #1e293b;
+        }
+        .option:active {
+            transform: scale(0.98);
+        }
+        .option .letter {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: #dce2ea;
+            color: #1e293b;
+            font-weight: 700;
+            font-size: 16px;
+            flex-shrink: 0;
+            transition: 0.15s;
+        }
+        .option.selected {
+            border-color: #1a4b7a;
+            background: #e6eff9;
+        }
+        .option.selected .letter {
+            background: #1a4b7a;
+            color: white;
+        }
+        .option.correct {
+            border-color: #1e7e34;
+            background: #e6f5ea;
+        }
+        .option.correct .letter {
+            background: #1e7e34;
+            color: white;
+        }
+        .option.wrong {
+            border-color: #b91c1c;
+            background: #fde8e8;
+        }
+        .option.wrong .letter {
+            background: #b91c1c;
+            color: white;
+        }
+        .option.disabled {
+            cursor: default;
+            opacity: 0.9;
+            pointer-events: none;
+        }
+        .option.disabled:active {
+            transform: none;
+        }
+
+        .feedback {
+            background: #f1f5f9;
+            border-radius: 18px;
+            padding: 18px 20px;
+            margin-top: 4px;
+            margin-bottom: 24px;
+            display: none;
+            border-left: 6px solid #94a3b8;
+        }
+        .feedback.show {
+            display: block;
+        }
+        .feedback .badge {
+            display: inline-block;
+            font-weight: 700;
+            font-size: 15px;
+            padding: 4px 18px;
+            border-radius: 30px;
+            margin-bottom: 10px;
+        }
+        .badge.correct-badge {
+            background: #d1f0d9;
+            color: #0f5424;
+        }
+        .badge.wrong-badge {
+            background: #fcd5d5;
+            color: #8b1a1a;
+        }
+        .feedback .justification {
+            font-size: 16px;
+            line-height: 1.5;
+            margin: 8px 0 4px;
+            color: #1e293b;
+        }
+        .feedback .mnemonic {
+            background: #fef7e0;
+            border-radius: 14px;
+            padding: 12px 16px;
+            margin-top: 14px;
+            font-size: 15px;
+            border: 1px solid #f7d97a;
+            color: #7a5800;
+        }
+        .feedback .mnemonic strong {
+            font-weight: 700;
+            color: #5f4300;
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 4px;
+        }
+        .btn {
+            flex: 1;
+            min-width: 100px;
+            background: #eef2f6;
+            border: none;
+            border-radius: 40px;
+            padding: 14px 18px;
+            font-weight: 600;
+            font-size: 17px;
+            color: #1e293b;
+            cursor: pointer;
+            transition: all 0.15s;
+            text-align: center;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .btn:active {
+            transform: scale(0.96);
+        }
+        .btn-primary {
+            background: #1a4b7a;
+            color: white;
+            box-shadow: 0 4px 12px rgba(26, 75, 122, 0.25);
+        }
+        .btn-primary:disabled {
+            opacity: 0.5;
+            transform: none;
+            box-shadow: none;
+            pointer-events: none;
+        }
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+        .btn-success {
+            background: #1e7e34;
+            color: white;
+            box-shadow: 0 4px 12px rgba(30, 126, 52, 0.25);
+        }
+        .btn-warning {
+            background: #d97706;
+            color: white;
+            box-shadow: 0 4px 12px rgba(217, 119, 6, 0.25);
+        }
+
+        .result-box {
+            text-align: center;
+            padding: 20px 0 10px;
+        }
+        .result-box .score {
+            font-size: 60px;
+            font-weight: 800;
+            color: #0b2b4a;
+        }
+        .result-box .label {
+            font-size: 20px;
+            color: #475569;
+            margin-top: 4px;
+        }
+        .result-box .message {
+            margin-top: 16px;
+            font-size: 18px;
+            font-weight: 500;
+            color: #1e293b;
+        }
+        .result-box .btn {
+            margin-top: 12px;
+        }
+        .result-detail {
+            margin-top: 20px;
+            text-align: left;
+            max-height: 400px;
+            overflow-y: auto;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 16px;
+        }
+        .result-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #e9edf2;
+            font-size: 14px;
+        }
+        .result-item .status {
+            font-weight: 600;
+        }
+        .result-item .justif {
+            font-size: 13px;
+            color: #1e293b;
+            background: #f1f5f9;
+            padding: 4px 10px;
+            border-radius: 8px;
+            margin-top: 4px;
+            display: inline-block;
+        }
+        .result-item .mnemo {
+            font-size: 13px;
+            background: #fef7e0;
+            padding: 4px 10px;
+            border-radius: 8px;
+            margin-top: 4px;
+            display: inline-block;
+            border: 1px solid #f7d97a;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+        .mt-16 {
+            margin-top: 16px;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 18px 14px 22px;
+            }
+            .question-text {
+                font-size: 18px;
+            }
+            .option {
+                font-size: 15px;
+                padding: 14px 16px;
+            }
+            .btn {
+                font-size: 15px;
+                padding: 12px 10px;
+                min-width: 80px;
+            }
+            .header h1 {
+                font-size: 19px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="app">
+        <div class="header">
+            <h1>🎬 Test Premis <small>oposició</small></h1>
+            <span class="progress-badge" id="progressLabel">1 / 30</span>
+        </div>
+
+        <div id="questionArea">
+            <div class="question-number" id="qNumber">
+                <span>Pregunta 1</span>
+                <span id="questionStatus"></span>
+            </div>
+            <div class="question-text" id="qText">Carregant...</div>
+            <div class="options" id="optionsContainer"></div>
+            <div class="feedback" id="feedback">
+                <div>
+                    <span class="badge" id="badgeResult">✅ Correcte</span>
+                </div>
+                <div class="justification" id="justificationText"></div>
+                <div class="mnemonic" id="mnemonicText"><strong>🧠 Truc per recordar:</strong> </div>
+            </div>
+            <div class="actions">
+                <button class="btn btn-secondary" id="prevBtn" disabled>← Anterior</button>
+                <button class="btn btn-primary" id="checkBtn">Comprovar</button>
+                <button class="btn btn-primary" id="nextBtn" style="display:none;">Següent →</button>
+            </div>
+        </div>
+
+        <div id="resultArea" class="result-box hidden">
+            <div class="score" id="finalScore">0</div>
+            <div class="label">encerts de 30</div>
+            <div class="message" id="finalMessage">😊 Bon treball!</div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:16px;">
+                <button class="btn btn-success" id="resetBtn">🔄 Tornar a començar</button>
+                <button class="btn btn-warning" id="retryWrongBtn" style="display:none;">📝 Repetir fallades</button>
+            </div>
+            <div class="result-detail" id="resultDetail"></div>
+        </div>
+    </div>
+
+    <script>
+        // ----- TOTES LES PREGUNTES (extretes del PDF) -----
+        const PREGUNTES = [
+            { id:1, pregunta:"Quina pel·lícula va guanyar el Goya a la Millor Pel·lícula l'any 2026?", opcions:["Sirát","Los domingos","Maspalomas"], correcta:1, justificacio:"Los domingos va obtenir el Goya a la Millor Pel·lícula en la 40a edició. (Academia de cine)", mnemo:"Los domingos → els diumenges són per als Goya." },
+            { id:2, pregunta:"En quina ciutat es va celebrar la 40a edició dels Premis Goya?", opcions:["Madrid","Barcelona","Sevilla"], correcta:1, justificacio:"La 40a edició dels Goya es va celebrar a Barcelona. (Academia de cine)", mnemo:"Barcelona comença per B, com 'Bona ciutat'." },
+            { id:3, pregunta:"Qui va guanyar el Goya 2026 a la Millor Direcció?", opcions:["Alauda Ruiz de Azúa","Albert Serra","Rodrigo Sorogoyen"], correcta:0, justificacio:"Alauda Ruiz de Azúa va guanyar el Goya a la Millor Direcció per Los domingos. (Academia de cine)", mnemo:"Alauda sona a 'alada' → va alçar el vol." },
+            { id:4, pregunta:"Qui va rebre el Goya d'Honor 2026?", opcions:["Gonzalo Suárez","Pedro Almodóvar","José Sacristán"], correcta:0, justificacio:"Gonzalo Suárez va rebre el Goya d'Honor 2026. (Academia de cine)", mnemo:"Gonzalo Suárez → Goya d'Honor, les dues G." },
+            { id:5, pregunta:"Quina actriu va rebre el Goya Internacional 2026?", opcions:["Meryl Streep","Susan Sarandon","Jodie Foster"], correcta:1, justificacio:"Susan Sarandon va rebre el Goya Internacional 2026. (Academia de cine)", mnemo:"Susan Sarandon → 'Sara' i 'don' (dona) → internacional." },
+            { id:6, pregunta:"Quina pel·lícula va guanyar l'Oscar a la Millor Pel·lícula el 2026?", opcions:["Sinners","Hamnet","One Battle After Another"], correcta:2, justificacio:"One Battle After Another va guanyar l'Oscar a la Millor Pel·lícula 2026. (oscars.org)", mnemo:"One Battle After Another → OBA, com 'Oscar de la Batalla'." },
+            { id:7, pregunta:"Qui va guanyar l'Oscar 2026 al millor actor protagonista?", opcions:["Michael B. Jordan","Leonardo DiCaprio","Timothée Chalamet"], correcta:0, justificacio:"Michael B. Jordan va guanyar l'Oscar al millor actor protagonista per Sinners. (oscars.org)", mnemo:"Michael B. Jordan → 'Jordan' juga a 'Sinners'." },
+            { id:8, pregunta:"Qui va guanyar l'Oscar 2026 a la millor actriu protagonista?", opcions:["Emma Stone","Jessie Buckley","Rose Byrne"], correcta:1, justificacio:"Jessie Buckley va guanyar l'Oscar a la millor actriu protagonista per Hamnet. (oscars.org)", mnemo:"Jessie Buckley → 'Buckley' sona a 'buck' i 'Hamnet'." },
+            { id:9, pregunta:"Quina pel·lícula va guanyar l'Oscar 2026 a la millor pel·lícula internacional?", opcions:["Sirāt","Sentimental Value","The Secret Agent"], correcta:1, justificacio:"Sentimental Value (Noruega) va guanyar l'Oscar a la millor pel·lícula internacional. (oscars.org)", mnemo:"Sentimental Value → 'Valor sentimental' i Noruega → fiords." },
+            { id:10, pregunta:"Quin director va guanyar l'Oscar 2026 a la millor direcció?", opcions:["Paul Thomas Anderson","Ryan Coogler","Guillermo del Toro"], correcta:0, justificacio:"Paul Thomas Anderson va guanyar l'Oscar a la millor direcció per One Battle After Another. (oscars.org)", mnemo:"Paul Thomas Anderson → 'Anderson' com 'And the Oscar goes to...'." },
+            { id:11, pregunta:"Quina pel·lícula va guanyar el BAFTA 2026 a la millor pel·lícula?", opcions:["Hamnet","One Battle After Another","Sinners"], correcta:1, justificacio:"One Battle After Another va guanyar el BAFTA a la millor pel·lícula 2026. (Bafta)", mnemo:"Mateixa que l'Oscar → One Battle After Another també triomfa als BAFTA." },
+            { id:12, pregunta:"Qui va guanyar el BAFTA 2026 a la millor actriu protagonista?", opcions:["Jessie Buckley","Teyana Taylor","Wunmi Mosaku"], correcta:0, justificacio:"Jessie Buckley va obtenir el BAFTA a la millor actriu protagonista per Hamnet. (Bafta)", mnemo:"Jessie Buckley repeteix als BAFTA, com un doblet." },
+            { id:13, pregunta:"Quin artista va guanyar el Grammy 2026 a l'Àlbum de l'Any?", opcions:["Bad Bunny","Justin Bieber","Kendrick Lamar"], correcta:0, justificacio:"Bad Bunny va guanyar l'Àlbum de l'Any als Grammy 2026. (Grammy)", mnemo:"Bad Bunny → el conill dolent es va emportar l'àlbum." },
+            { id:14, pregunta:"Quin és el títol de l'àlbum que va guanyar el Grammy 2026 a l'Àlbum de l'Any?", opcions:["SWAG","DeBÍ TiRAR Más FOToS","Man's Best Friend"], correcta:1, justificacio:"DeBÍ TiRAR Más FOToS és l'àlbum de Bad Bunny que va obtenir el Grammy. (Grammy)", mnemo:"DeBÍ TiRAR Más FOToS → 'tirar fotos' és una acció." },
+            { id:15, pregunta:"Qui va guanyar el Grammy 2026 a Millor Artista Novell?", opcions:["Olivia Dean","Sabrina Carpenter","Doechi"], correcta:0, justificacio:"Olivia Dean va guanyar el Grammy a Millor Artista Novell. (Grammy)", mnemo:"Olivia Dean → 'Dean' com a 'degana' dels novells." },
+            { id:16, pregunta:"Quina cançó va guanyar el Grammy 2026 a la Gravació de l'Any?", opcions:["APT.","DtMF","Not Like Us"], correcta:1, justificacio:"DtMF, de Bad Bunny, va obtenir el Grammy a la Gravació de l'Any. (Grammy)", mnemo:"DtMF → 'Dale Tu Música Favorita' (recorda Bad Bunny)." },
+            { id:17, pregunta:"Quin artista va guanyar el Latin Grammy 2025 a la Gravació de l'Any?", opcions:["Alejandro Sanz","Bad Bunny","Rauw Alejandro"], correcta:0, justificacio:"Alejandro Sanz, amb 'Palmeras En El Jardín', va guanyar la Gravació de l'Any als Latin Grammy 2025. (Latin Grammys)", mnemo:"Alejandro Sanz → 'Palmeras' al jardí." },
+            { id:18, pregunta:"Quina cançó va guanyar el Latin Grammy 2025 a la Cançó de l'Any?", opcions:["Palmeras En El Jardín","Si Antes Te Hubiera Conocido","Baile Inolvidable"], correcta:1, justificacio:"Si Antes Te Hubiera Conocido va guanyar el Latin Grammy a la Cançó de l'Any. (Latin Grammys)", mnemo:"Si Antes Te Hubiera Conocido → cançó de penediment." },
+            { id:19, pregunta:"Quin artista va rebre el premi Ondas 2025 a la trajectòria musical?", opcions:["Manuel Alejandro","Alejandro Sanz","Joan Manuel Serrat"], correcta:0, justificacio:"Manuel Alejandro va rebre el Premi Ondas Especial del Jurat de Música 2025 per la seva trajectòria. (Premios Ondas)", mnemo:"Manuel Alejandro → trajectòria llarga com el seu nom." },
+            { id:20, pregunta:"Quin grup o artista va rebre el Premi Ondas 2025 com a «Fenomen musical de l'any»?", opcions:["Ginebras","La Oreja de Van Gogh","Amaral"], correcta:0, justificacio:"Ginebras van ser reconegudes com a «Fenomen musical de l'any» als Ondas 2025. (Premios Ondas)", mnemo:"Ginebras → el grup que va ser 'el fenomen'." },
+            { id:21, pregunta:"Quin programa va guanyar el Premi Ondas 2025 al Millor Programa de Ràdio?", opcions:["Versió RAC1","Cafè d'idees","La Ventana"], correcta:0, justificacio:"Versió RAC1 va guanyar el Premi Ondas Nacional de Ràdio al Millor Programa. (Premios Ondas)", mnemo:"Versió RAC1 → 'Versió' com a programa estrella." },
+            { id:22, pregunta:"Quin programa va guanyar el Premi Ondas 2025 al Millor Programa de Proximitat?", opcions:["Versió RAC1","Cafè d'idees","La Ventana"], correcta:1, justificacio:"Cafè d'idees, de Ràdio 4, va obtenir el premi al Millor Programa de Proximitat. (Premios Ondas)", mnemo:"Cafè d'idees → 'cafè' és de proximitat." },
+            { id:23, pregunta:"Quin programa va rebre el Premi Ondas 2025 a la Millor Programació Especial pels continguts durant l'apagada del 28 d'abril?", opcions:["Versió RAC1","Programas especiales por el apagón del 28 de abril","Informatius RNE"], correcta:1, justificacio:"Programas especiales por el apagón del 28 de abril va ser reconegut com a Millor Programació Especial. (Premios Ondas)", mnemo:"Programes especials → l'apagada del 28 d'abril." },
+            { id:24, pregunta:"Qui va rebre el Premi Ondas 2025 a la trajectòria o millor labor professional en ràdio?", opcions:["Iñaki Gabilondo","Isaías Lafuente","Carlos Herrera"], correcta:1, justificacio:"Isaías Lafuente va obtenir el premi a la Trajectòria o Millor Labor Professional. (Premios Ondas)", mnemo:"Isaías Lafuente → 'Lafuente' com 'la font'." },
+            { id:25, pregunta:"Quin podcast va guanyar el Premi Ondas Nacional de Ràdio 2025 al Millor Podcast?", opcions:["La Ruina","Se llamaba como yo","Criminopatía"], correcta:1, justificacio:"Se llamaba como yo va guanyar el Premi Ondas Nacional de Ràdio al Millor Podcast. (Premios Ondas)", mnemo:"Se llamaba como yo → títol autobiogràfic." },
+            { id:26, pregunta:"Quin podcast va guanyar el Premi Ondas del Podcast 2025 al Millor Podcast de l'Any?", opcions:["La Ruina","El Tigre","HUMO"], correcta:0, justificacio:"La Ruina va guanyar el Premi Ondas del Podcast al Millor Podcast de l'Any. (podcast.premiosondas.com)", mnemo:"La Ruina → el podcast de l'any, com si fos la ruïna dels altres." },
+            { id:27, pregunta:"Quin programa va guanyar el Premi Ondas 2025 al Millor Programa de Televisió?", opcions:["La Revuelta","Celeste","Cifras y letras"], correcta:0, justificacio:"La Revuelta és la resposta correcta per al Millor Programa de Televisió dels Ondas 2025.", mnemo:"La Revuelta → una revolta televisiva." },
+            { id:28, pregunta:"On es va celebrar el Festival d'Eurovisió 2026?", opcions:["Viena","Budapest","Sofia"], correcta:0, justificacio:"Eurovisió 2026 es va celebrar al Wiener Stadthalle de Viena. (Eurovision)", mnemo:"Viena → ciutat dels valsos." },
+            { id:29, pregunta:"Quin país va guanyar Eurovisió 2026?", opcions:["França","Bulgària","Suècia"], correcta:1, justificacio:"Bulgària, amb DARA, va guanyar Eurovisió 2026. Primera victòria del país. (Eurovision)", mnemo:"Bulgària → primera victòria, B de 'Bona notícia'." },
+            { id:30, pregunta:"Quin era el títol de la cançó guanyadora d'Eurovisió 2026?", opcions:["Bangaranga","Golden","Espresso Macchiato"], correcta:0, justificacio:"DARA va guanyar Eurovisió 2026 amb 'Bangaranga' i 516 punts. (Eurovision)", mnemo:"Bangaranga → sona a 'bang' i 'ranga'." }
+        ];
+
+        // ----- ESTAT GLOBAL -----
+        let answers = new Array(PREGUNTES.length).fill(null);
+        let revealed = new Array(PREGUNTES.length).fill(false);
+        let currentIndex = 0;
+        let mode = 'normal'; // 'normal' | 'retry'
+        let wrongIndices = []; // índexs originals de preguntes fallades
+
+        // ----- DOM -----
+        const $ = id => document.getElementById(id);
+        const questionArea = $('questionArea');
+        const resultArea = $('resultArea');
+        const progressLabel = $('progressLabel');
+        const qNumber = $('qNumber');
+        const questionStatus = $('questionStatus');
+        const qText = $('qText');
+        const optionsContainer = $('optionsContainer');
+        const feedback = $('feedback');
+        const badgeResult = $('badgeResult');
+        const justificationText = $('justificationText');
+        const mnemonicText = $('mnemonicText');
+        const checkBtn = $('checkBtn');
+        const nextBtn = $('nextBtn');
+        const prevBtn = $('prevBtn');
+        const resetBtn = $('resetBtn');
+        const retryWrongBtn = $('retryWrongBtn');
+        const finalScore = $('finalScore');
+        const finalMessage = $('finalMessage');
+        const resultDetail = $('resultDetail');
+
+        // ----- FUNCIONS AUXILIARS -----
+        function getCurrentQuestions() {
+            if (mode === 'retry' && wrongIndices.length > 0) {
+                return wrongIndices.map(i => PREGUNTES[i]);
+            }
+            return PREGUNTES;
+        }
+
+        function getCurrentAnswers() {
+            if (mode === 'retry' && wrongIndices.length > 0) {
+                return wrongIndices.map(i => answers[i]);
+            }
+            return answers;
+        }
+
+        function getCurrentRevealed() {
+            if (mode === 'retry' && wrongIndices.length > 0) {
+                return wrongIndices.map(i => revealed[i]);
+            }
+            return revealed;
+        }
+
+        // ----- RENDERITZAR PREGUNTA (AMB EL BOTÓ RESULTAT CORREGIT) -----
+        function renderQuestion(index) {
+            const qs = getCurrentQuestions();
+            const ans = getCurrentAnswers();
+            const rev = getCurrentRevealed();
+
+            if (index >= qs.length) {
+                showResults();
+                return;
+            }
+
+            const q = qs[index];
+            const userAnswer = ans[index];
+            const isRevealed = rev[index];
+
+            const total = qs.length;
+            progressLabel.textContent = `${index+1} / ${total}`;
+            qNumber.innerHTML = `<span>Pregunta ${index+1}</span><span id="questionStatus"></span>`;
+            if (isRevealed) {
+                const isCorrect = userAnswer === q.correcta;
+                document.getElementById('questionStatus').textContent = isCorrect ? '✅' : '❌';
+            } else {
+                document.getElementById('questionStatus').textContent = '';
+            }
+            qText.textContent = q.pregunta;
+
+            optionsContainer.innerHTML = '';
+            const letters = ['a', 'b', 'c'];
+            q.opcions.forEach((text, i) => {
+                const div = document.createElement('div');
+                div.className = 'option';
+                if (userAnswer === i) div.classList.add('selected');
+                if (isRevealed) {
+                    div.classList.add('disabled');
+                    if (i === q.correcta) div.classList.add('correct');
+                    if (userAnswer === i && i !== q.correcta) div.classList.add('wrong');
+                }
+                div.innerHTML = `<span class="letter">${letters[i]}</span> ${text}`;
+                div.dataset.index = i;
+                if (!isRevealed) {
+                    const handler = () => selectOption(index, i);
+                    div.addEventListener('click', handler);
+                    div.addEventListener('touchstart', (e) => {
+                        if (!e.target.closest('.option.disabled')) handler();
+                    }, { passive: true });
+                }
+                optionsContainer.appendChild(div);
+            });
+
+            if (isRevealed) {
+                const isCorrect = userAnswer === q.correcta;
+                badgeResult.textContent = isCorrect ? '✅ Correcte' : '❌ Incorrecte';
+                badgeResult.className = `badge ${isCorrect ? 'correct-badge' : 'wrong-badge'}`;
+                justificationText.textContent = q.justificacio;
+                mnemonicText.innerHTML = `<strong>🧠 Truc per recordar:</strong> ${q.mnemo}`;
+                feedback.classList.add('show');
+                checkBtn.style.display = 'none';
+                nextBtn.style.display = 'inline-block';
+            } else {
+                feedback.classList.remove('show');
+                checkBtn.style.display = 'inline-block';
+                nextBtn.style.display = 'none';
+            }
+
+            // ✅ CORRECCIÓ: el botó "Següent" només es desactiva si és l'última pregunta I NO ESTÀ REVELADA
+            nextBtn.disabled = (index === total - 1 && !isRevealed);
+            prevBtn.disabled = (index === 0);
+
+            if (index === total - 1 && isRevealed) {
+                nextBtn.textContent = '📊 Resultat';
+                nextBtn.onclick = showResults;
+            } else {
+                nextBtn.textContent = 'Següent →';
+                nextBtn.onclick = () => goTo(index + 1);
+            }
+        }
+
+        function selectOption(qIndex, optIndex) {
+            const rev = getCurrentRevealed();
+            if (rev[qIndex]) return;
+            const ans = getCurrentAnswers();
+            ans[qIndex] = optIndex;
+            if (mode === 'retry' && wrongIndices.length > 0) {
+                const originalIdx = wrongIndices[qIndex];
+                answers[originalIdx] = optIndex;
+            }
+            renderQuestion(currentIndex);
+        }
+
+        function checkAnswer() {
+            const qs = getCurrentQuestions();
+            const ans = getCurrentAnswers();
+            const rev = getCurrentRevealed();
+            const idx = currentIndex;
+
+            if (ans[idx] === null) {
+                alert('Selecciona una opció abans de comprovar.');
+                return;
+            }
+
+            rev[idx] = true;
+            if (mode === 'retry' && wrongIndices.length > 0) {
+                const originalIdx = wrongIndices[idx];
+                revealed[originalIdx] = true;
+            }
+
+            renderQuestion(currentIndex);
+        }
+
+        function goTo(index) {
+            const qs = getCurrentQuestions();
+            if (index < 0 || index >= qs.length) return;
+            currentIndex = index;
+            renderQuestion(index);
+            window.scrollTo({ top: 0, behavior: 'auto' });
+        }
+
+        // ----- RESULTATS -----
+        function showResults() {
+            const total = PREGUNTES.length;
+            let correctCount = 0;
+            let wrongCount = 0;
+            let unanswered = 0;
+            const detall = [];
+
+            for (let i = 0; i < total; i++) {
+                const q = PREGUNTES[i];
+                const userAns = answers[i];
+                const isRevealed = revealed[i];
+                const isCorrect = userAns === q.correcta;
+
+                if (!isRevealed) {
+                    unanswered++;
+                    detall.push({
+                        index: i,
+                        q: q,
+                        userAns: userAns,
+                        isCorrect: false,
+                        status: 'no respondida'
+                    });
+                } else if (isCorrect) {
+                    correctCount++;
+                    detall.push({
+                        index: i,
+                        q: q,
+                        userAns: userAns,
+                        isCorrect: true,
+                        status: 'correcta'
+                    });
+                } else {
+                    wrongCount++;
+                    detall.push({
+                        index: i,
+                        q: q,
+                        userAns: userAns,
+                        isCorrect: false,
+                        status: 'fallada'
+                    });
+                }
+            }
+
+            const percent = Math.round((correctCount / total) * 100);
+
+            finalScore.textContent = correctCount;
+            let msg = '';
+            if (correctCount === total) msg = '🏆 Perfecte! Ets un expert en premis!';
+            else if (correctCount >= total * 0.8) msg = '🌟 Molt bé! T’has preparat molt bé.';
+            else if (correctCount >= total * 0.6) msg = '👍 Bé, però repassa les que has fallat.';
+            else if (correctCount >= total * 0.4) msg = '📚 Necessites estudiar més les dades.';
+            else msg = '💪 Torna a intentar-ho, aquest test és difícil.';
+            finalMessage.textContent = msg;
+
+            let html = `<div style="font-weight:600; margin-bottom:8px;">📋 Detall de respostes</div>`;
+            detall.forEach((item, idx) => {
+                const q = item.q;
+                const userLletra = item.userAns !== null ? String.fromCharCode(65 + item.userAns) : '—';
+                const correctLletra = String.fromCharCode(65 + q.correcta);
+                let icon = '';
+                let color = '';
+                if (item.status === 'correcta') {
+                    icon = '✅';
+                    color = '#1e7e34';
+                } else if (item.status === 'fallada') {
+                    icon = '❌';
+                    color = '#b91c1c';
+                } else {
+                    icon = '⏭️';
+                    color = '#64748b';
+                }
+                html += `
+                    <div class="result-item">
+                        <span style="color:${color}; font-weight:600;">${icon} ${idx+1}.</span>
+                        <strong>${q.pregunta}</strong>
+                        <br><span style="font-size:13px;">Tria: ${userLletra} | Correcta: ${correctLletra}</span>
+                        <br><span class="justif">💡 ${q.justificacio}</span>
+                        ${q.mnemo ? `<br><span class="mnemo">🧠 ${q.mnemo}</span>` : ''}
+                    </div>
+                `;
+            });
+            resultDetail.innerHTML = html;
+
+            questionArea.classList.add('hidden');
+            resultArea.classList.remove('hidden');
+
+            const falladesIndices = detall.filter(d => d.status === 'fallada').map(d => d.index);
+            if (falladesIndices.length > 0) {
+                retryWrongBtn.style.display = 'inline-block';
+                retryWrongBtn.onclick = () => startRetry(falladesIndices);
+            } else {
+                retryWrongBtn.style.display = 'none';
+            }
+        }
+
+        // ----- REPETIR FALLADES (NETEJANT RESPOSTES) -----
+        function startRetry(falladesIndices) {
+            if (falladesIndices.length === 0) return;
+
+            // Netejar respostes i estat de revelació per a les preguntes fallades
+            for (let idx of falladesIndices) {
+                answers[idx] = null;
+                revealed[idx] = false;
+            }
+
+            mode = 'retry';
+            wrongIndices = falladesIndices;
+            currentIndex = 0;
+
+            resultArea.classList.add('hidden');
+            questionArea.classList.remove('hidden');
+            renderQuestion(0);
+            window.scrollTo({ top: 0, behavior: 'auto' });
+        }
+
+        // ----- REINICIAR -----
+        function resetTest() {
+            mode = 'normal';
+            wrongIndices = [];
+            currentIndex = 0;
+            answers = new Array(PREGUNTES.length).fill(null);
+            revealed = new Array(PREGUNTES.length).fill(false);
+            resultArea.classList.add('hidden');
+            questionArea.classList.remove('hidden');
+            renderQuestion(0);
+            window.scrollTo({ top: 0, behavior: 'auto' });
+        }
+
+        // ----- ESDEVENIMENTS -----
+        checkBtn.addEventListener('click', checkAnswer);
+        checkBtn.addEventListener('touchstart', (e) => { if (!e.target.disabled) checkAnswer(); }, { passive: true });
+        prevBtn.addEventListener('click', () => goTo(currentIndex - 1));
+        prevBtn.addEventListener('touchstart', (e) => { if (!e.target.disabled) goTo(currentIndex - 1); }, { passive: true });
+        resetBtn.addEventListener('click', resetTest);
+        resetBtn.addEventListener('touchstart', resetTest, { passive: true });
+
+        // Inici
+        renderQuestion(0);
+    </script>
+</body>
+</html>
