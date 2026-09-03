@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Test Agents PL 2023 · 66 preguntes</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif; background: #e9edf2; padding: 16px 12px 40px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; color: #1e293b; }
+        .container { max-width: 680px; width: 100%; background: #fff; border-radius: 32px; box-shadow: 0 12px 40px rgba(0,0,0,0.08); padding: 24px 20px 30px; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eef2f6; padding-bottom: 14px; margin-bottom: 22px; }
+        .header h1 { font-size: 22px; font-weight: 700; color: #0b2b4a; }
+        .header h1 small { font-size: 14px; font-weight: 400; color: #64748b; margin-left: 8px; }
+        .progress-badge { background: #dbe7f3; color: #0b2b4a; font-weight: 600; padding: 6px 16px; border-radius: 30px; font-size: 15px; white-space: nowrap; }
+        .question-number { font-weight: 700; color: #1a4b7a; font-size: 15px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+        .question-text { font-size: 20px; font-weight: 600; line-height: 1.4; margin-bottom: 24px; min-height: 3.2em; color: #0a1e32; }
+        .options { display: flex; flex-direction: column; gap: 12px; margin-bottom: 28px; }
+        .option { background: #f8fafc; border: 2px solid #dce2ea; border-radius: 16px; padding: 16px 20px; font-size: 17px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 14px; touch-action: manipulation; user-select: none; -webkit-user-select: none; transition: 0.15s; }
+        .option:active { transform: scale(0.98); }
+        .option .letter { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; background: #dce2ea; color: #1e293b; font-weight: 700; font-size: 16px; flex-shrink: 0; }
+        .option.selected { border-color: #1a4b7a; background: #e6eff9; }
+        .option.selected .letter { background: #1a4b7a; color: white; }
+        .option.correct { border-color: #1e7e34; background: #e6f5ea; }
+        .option.correct .letter { background: #1e7e34; color: white; }
+        .option.wrong { border-color: #b91c1c; background: #fde8e8; }
+        .option.wrong .letter { background: #b91c1c; color: white; }
+        .option.disabled { pointer-events: none; opacity: 0.9; }
+        .option.disabled:active { transform: none; }
+        .feedback { background: #f1f5f9; border-radius: 18px; padding: 18px 20px; margin: 4px 0 24px; display: none; border-left: 6px solid #94a3b8; }
+        .feedback.show { display: block; }
+        .feedback .badge { display: inline-block; font-weight: 700; font-size: 15px; padding: 4px 18px; border-radius: 30px; margin-bottom: 10px; }
+        .badge.correct-badge { background: #d1f0d9; color: #0f5424; }
+        .badge.wrong-badge { background: #fcd5d5; color: #8b1a1a; }
+        .feedback .justification { font-size: 16px; line-height: 1.5; margin: 8px 0; }
+        .feedback .mnemonic { background: #fef7e0; border-radius: 14px; padding: 12px 16px; margin-top: 14px; font-size: 15px; border: 1px solid #f7d97a; color: #7a5800; }
+        .feedback .mnemonic strong { font-weight: 700; color: #5f4300; }
+        .actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 4px; }
+        .btn { flex: 1; min-width: 100px; background: #eef2f6; border: none; border-radius: 40px; padding: 14px 18px; font-weight: 600; font-size: 17px; color: #1e293b; cursor: pointer; transition: 0.15s; text-align: center; touch-action: manipulation; }
+        .btn:active { transform: scale(0.96); }
+        .btn-primary { background: #1a4b7a; color: white; box-shadow: 0 4px 12px rgba(26,75,122,0.25); }
+        .btn-primary:disabled { opacity: 0.5; pointer-events: none; box-shadow: none; }
+        .btn-secondary { background: #e2e8f0; }
+        .btn-success { background: #1e7e34; color: white; box-shadow: 0 4px 12px rgba(30,126,52,0.25); }
+        .btn-warning { background: #d97706; color: white; box-shadow: 0 4px 12px rgba(217,119,6,0.25); }
+        .result-box { text-align: center; padding: 20px 0 10px; }
+        .result-box .score { font-size: 60px; font-weight: 800; color: #0b2b4a; }
+        .result-box .label { font-size: 20px; color: #475569; margin-top: 4px; }
+        .result-box .message { margin-top: 16px; font-size: 18px; font-weight: 500; }
+        .result-detail { margin-top: 20px; text-align: left; max-height: 400px; overflow-y: auto; border-top: 1px solid #e2e8f0; padding-top: 16px; }
+        .result-item { padding: 10px 0; border-bottom: 1px solid #e9edf2; font-size: 14px; }
+        .result-item .justif { font-size: 13px; background: #f1f5f9; padding: 4px 10px; border-radius: 8px; margin-top: 4px; display: inline-block; }
+        .result-item .mnemo { font-size: 13px; background: #fef7e0; padding: 4px 10px; border-radius: 8px; margin-top: 4px; display: inline-block; border: 1px solid #f7d97a; }
+        .hidden { display: none !important; }
+        @media (max-width: 480px) { .container { padding: 18px 14px 22px; } .question-text { font-size: 18px; } .option { font-size: 15px; padding: 14px 16px; } .btn { font-size: 15px; padding: 12px 10px; min-width: 80px; } .header h1 { font-size: 19px; } }
+    </style>
+</head>
+<body>
+<div class="container" id="app">
+    <div class="header">
+        <h1>👮 Test Agents PL 2023 <small>66 preguntes</small></h1>
+        <span class="progress-badge" id="progressLabel">1 / 66</span>
+    </div>
+    <div id="questionArea">
+        <div class="question-number"><span id="qNumber">Pregunta 1</span><span id="questionStatus"></span></div>
+        <div class="question-text" id="qText">Carregant...</div>
+        <div class="options" id="optionsContainer"></div>
+        <div class="feedback" id="feedback">
+            <div><span class="badge" id="badgeResult">✅ Correcte</span></div>
+            <div class="justification" id="justificationText"></div>
+            <div class="mnemonic" id="mnemonicText"><strong>🧠 Truc:</strong> </div>
+        </div>
+        <div class="actions">
+            <button class="btn btn-secondary" id="prevBtn" disabled>← Anterior</button>
+            <button class="btn btn-primary" id="checkBtn">Comprovar</button>
+            <button class="btn btn-primary" id="nextBtn" style="display:none;">Següent →</button>
+        </div>
+    </div>
+    <div id="resultArea" class="result-box hidden">
+        <div class="score" id="finalScore">0</div>
+        <div class="label">encerts de 66</div>
+        <div class="message" id="finalMessage">😊 Bon treball!</div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:16px;">
+            <button class="btn btn-success" id="resetBtn">🔄 Tornar a començar</button>
+            <button class="btn btn-warning" id="retryWrongBtn" style="display:none;">📝 Repetir fallades</button>
+        </div>
+        <div class="result-detail" id="resultDetail"></div>
+    </div>
+</div>
+<script>
+const PREGUNTES = [
+// PRIMERA PART - CULTURA GENERAL (1-30)
+{id:1, pregunta:"Com es deia el fill dels Reis Catòlics?", opcions:["Juan","Felipe","No van tenir fills"], correcta:0, justificacio:"Els Reis Catòlics van tenir un fill anomenat Juan, que va morir jove.", mnemo:"Juan → fill dels Reis, com 'J'."},
+{id:2, pregunta:"En quantes parts està dividit 'El Quixot'?", opcions:["Quatre parts","Dues parts","Tres parts"], correcta:1, justificacio:"El Quixot es divideix en dues parts (1605 i 1615).", mnemo:"2 parts → Quixot, com '2'."},
+{id:3, pregunta:"La morfologia estudia:", opcions:["Posició dels fonemes","Forma de les paraules","La flexió, composició, derivació de les paraules determinant categories gramaticals"], correcta:2, justificacio:"La morfologia estudia la flexió, composició i derivació de les paraules.", mnemo:"Morfologia → forma i categories, com 'M'."},
+{id:4, pregunta:"Quin país és l'anomenat 'El país dels mil llacs'?", opcions:["Canadà","Suïssa","Finlàndia"], correcta:2, justificacio:"Finlàndia és conegut com el país dels mil llacs (més de 180.000).", mnemo:"Finlàndia → mil llacs, com 'F'."},
+{id:5, pregunta:"L'ozó és un:", opcions:["Metall","Riu d'Àfrica","Gas atmosfèric"], correcta:2, justificacio:"L'ozó és un gas atmosfèric (O₃) que protegeix de la radiació UV.", mnemo:"Ozó → gas, com 'O'."},
+{id:6, pregunta:"Indica el plusquamperfet singular del mode indicatiu del verb cantar:", opcions:["Vaig cantar","Havies cantat","Vas haver cantat"], correcta:1, justificacio:"El plusquamperfet d'indicatiu de cantar és 'havia cantat' (1a persona) o 'havies cantat' (2a).", mnemo:"Havies cantat → plusquamperfet, com 'P'."},
+{id:7, pregunta:"Quina és la capital de la Comarca d'Osona?", opcions:["Figueres","Vic","Manresa"], correcta:1, justificacio:"Vic és la capital de la comarca d'Osona.", mnemo:"Vic → Osona, com 'V'."},
+{id:8, pregunta:"L'autora del llibre 'La plaça del Diamant' és:", opcions:["Maria Aurèlia Capmany","Montserrat Roig","Mercè Rodoreda"], correcta:2, justificacio:"La plaça del Diamant és de Mercè Rodoreda.", mnemo:"Rodoreda → Diamant, com 'R'."},
+{id:9, pregunta:"A quina família pertanyen els cucs?", opcions:["Vertebrats","Invertebrats","Aràcnids"], correcta:1, justificacio:"Els cucs són invertebrats, ja que no tenen columna vertebral.", mnemo:"Cucs → invertebrats, com 'I'."},
+{id:10, pregunta:"L'aparell que s'encarrega de distribuir la sang per tot l'organisme és:", opcions:["Aparell digestiu","Aparell respiratori","Aparell circulatori"], correcta:2, justificacio:"L'aparell circulatori distribueix la sang per tot el cos.", mnemo:"Circulatori → sang, com 'C'."},
+{id:11, pregunta:"La comunitat autònoma de Castella-La Manxa està formada per:", opcions:["Ciudad Real, Toledo, Cuenca, Guadalajara i Soria","Guadalajara, Toledo, Cuenca, Ciudad Real i Albacete","Toledo, Soria, Cuenca, Albacete i Càceres"], correcta:1, justificacio:"Les províncies de Castella-La Manxa són Albacete, Ciudad Real, Cuenca, Guadalajara i Toledo.", mnemo:"Albacete, Ciudad Real, Cuenca, Guadalajara, Toledo → ACGT, com 'A'."},
+{id:12, pregunta:"President de la Generalitat de Catalunya els anys 2010 al 2016:", opcions:["Quim Torra Pla","José Montilla Aguilera","Artur Mas Gavarró"], correcta:2, justificacio:"Artur Mas va ser president de la Generalitat entre 2010 i 2016.", mnemo:"Artur Mas → 2010-2016, com 'A'."},
+{id:13, pregunta:"La capital de Líbia és:", opcions:["Trípoli","Liban","Bengasi"], correcta:0, justificacio:"Trípoli és la capital de Líbia.", mnemo:"Trípoli → Líbia, com 'T'."},
+{id:14, pregunta:"Quina de les següents paraules no és una preposició?", opcions:["Entre","Contra","Algun"], correcta:2, justificacio:"Algun és un determinant, no una preposició.", mnemo:"Algun → no preposició, com 'A'."},
+{id:15, pregunta:"El planeta més proper a la Terra és:", opcions:["Mercuri","Mart","Venus"], correcta:2, justificacio:"Venus és el planeta més proper a la Terra en distància mitjana.", mnemo:"Venus → més proper, com 'V'."},
+{id:16, pregunta:"Quina parella de famosos es va separar a l'any 2022?", opcions:["Risto Mejide i Laura Escanes","Gerard Piqué i Clara Chía","Rosalía i Rauw Alejandro"], correcta:2, justificacio:"Rosalía i Rauw Alejandro es van separar l'estiu de 2022.", mnemo:"Rosalía i Rauw → 2022, com 'R'."},
+{id:17, pregunta:"A quina ciutat se celebraran els Jocs Olímpics d'estiu 2024?", opcions:["Múnic","Roma","París"], correcta:2, justificacio:"Els Jocs Olímpics d'estiu de 2024 se celebraran a París.", mnemo:"París → 2024, com 'P'."},
+{id:18, pregunta:"Quin cantant s'ha acomiadat dels escenaris en un concert al Palau Sant Jordi el 23 de desembre de 2022?", opcions:["Joaquín Sabina","Lluís Llach","Joan Manuel Serrat"], correcta:2, justificacio:"Joan Manuel Serrat es va acomiadar dels escenaris el 23 de desembre de 2022 al Palau Sant Jordi.", mnemo:"Serrat → acomiadament, com 'S'."},
+{id:19, pregunta:"Quina actriu ha mort el 16 de gener de 2023?", opcions:["Claudia Cardinale","Gina Lollobrigida","Sofia Loren"], correcta:1, justificacio:"Gina Lollobrigida va morir el 16 de gener de 2023.", mnemo:"Lollobrigida → 2023, com 'L'."},
+{id:20, pregunta:"Quina pel·lícula ha obtingut més estatuetes als Premis Goya 2023?", opcions:["Modelo 77","Alcarràs","As Bestas"], correcta:2, justificacio:"As Bestas va guanyar el Goya a la Millor Pel·lícula i va ser la més premiada el 2023.", mnemo:"As Bestas → Goya 2023, com 'A'."},
+{id:21, pregunta:"Quina cantant representarà Espanya a Eurovisió 2023?", opcions:["Chanel","Blanca Paloma","Agoney"], correcta:1, justificacio:"Blanca Paloma va representar Espanya a Eurovisió 2023 amb 'Eaea'.", mnemo:"Blanca Paloma → Eurovisió, com 'B'."},
+{id:22, pregunta:"Quin dia se celebraran les eleccions municipals a Catalunya?", opcions:["4 de juny de 2023","14 de maig de 2023","28 de maig de 2023"], correcta:2, justificacio:"Les eleccions municipals de 2023 es van celebrar el 28 de maig.", mnemo:"28 de maig → municipals, com '28'."},
+{id:23, pregunta:"Quina és l'actual consellera d'Acció Exterior i Unió Europea de la Generalitat?", opcions:["Meritxell Serret Aleu","Natàlia Mas Guix","Gemma Ubasart González"], correcta:0, justificacio:"Meritxell Serret és la consellera d'Acció Exterior i Unió Europea.", mnemo:"Serret → Acció Exterior, com 'S'."},
+{id:24, pregunta:"A quin club de futbol juga actualment Robert Lewandowski?", opcions:["Manchester United","Paris Saint-Germain","FC Barcelona"], correcta:2, justificacio:"Lewandowski juga al FC Barcelona des de 2022.", mnemo:"Lewandowski → Barça, com 'L'."},
+{id:25, pregunta:"Quin és l'actual president de la CEOE?", opcions:["Antonio Garamendi","Miguel Garrido","Juan Rosell"], correcta:0, justificacio:"Antonio Garamendi és el president de la CEOE.", mnemo:"Garamendi → CEOE, com 'G'."},
+{id:26, pregunta:"Quina selecció ha estat guanyadora del Mundial de Futbol de 2022?", opcions:["Marroc","Argentina","França"], correcta:1, justificacio:"Argentina va guanyar el Mundial de Qatar 2022.", mnemo:"Argentina → 2022, com 'A'."},
+{id:27, pregunta:"Quin equip ha guanyat recentment la Copa del Rei de bàsquet 2023?", opcions:["València Basket","Real Madrid","Unicaja Màlaga"], correcta:2, justificacio:"Unicaja Màlaga va guanyar la Copa del Rei de bàsquet 2023.", mnemo:"Unicaja → Copa 2023, com 'U'."},
+{id:28, pregunta:"Quin organisme ha arribat a un acord aquest mes de març per protegir els oceans?", opcions:["OMS","OCDE","ONU"], correcta:2, justificacio:"L'ONU va arribar a un acord per protegir els oceans el març de 2023.", mnemo:"ONU → oceans, com 'O'."},
+{id:29, pregunta:"Qui ha guanyat el Premi Nobel de Literatura 2022?", opcions:["Bob Dylan","Annie Ernaux","Louise Glück"], correcta:1, justificacio:"Annie Ernaux va guanyar el Premi Nobel de Literatura 2022.", mnemo:"Ernaux → Nobel 2022, com 'E'."},
+{id:30, pregunta:"Quin és el nom de naixement del cantant Maluma?", opcions:["Juan Luis Londoño Arias","Ramón Luis Ayala Rodríguez","Benito Antonio Martínez Ocasio"], correcta:0, justificacio:"Maluma es diu Juan Luis Londoño Arias.", mnemo:"Maluma → Juan Luis, com 'J'."},
+// RESERVA PRIMERA PART (31-33)
+{id:31, pregunta:"Les comarques del Camp de Tarragona són:", opcions:["Priorat, Conca de Barberà, Alt Camp, Baix Penedès, Tarragonès i Baix Camp","Conca de Barberà, Solsonès, Tarragonès, Alt Camp i Baix Camp","Alt Camp, Baix Camp, Moianès, Solsonès, Priorat i Tarragonès"], correcta:0, justificacio:"El Camp de Tarragona comprèn Priorat, Conca de Barberà, Alt Camp, Baix Penedès, Tarragonès i Baix Camp.", mnemo:"Camp de Tarragona → 6 comarques, com '6'."},
+{id:32, pregunta:"L'illa de Malta es troba en el mar:", opcions:["Adriàtic","Mediterrani","Negre"], correcta:1, justificacio:"Malta és una illa del mar Mediterrani.", mnemo:"Malta → Mediterrani, com 'M'."},
+{id:33, pregunta:"Qui és l'actual president de Brasil, guanyador de les eleccions d'octubre 2022?", opcions:["Jair Bolsonaro","Luiz Inácio Lula da Silva","Michel Temer"], correcta:1, justificacio:"Lula da Silva va guanyar les eleccions de 2022 i és president del Brasil.", mnemo:"Lula → Brasil 2022, com 'L'."},
+// SEGONA PART - TEMARI ESPECÍFIC (1-30)
+{id:34, pregunta:"El Parlament de Catalunya és l'òrgan encarregat de:", opcions:["Elaborar els pressupostos","Representar el poble de Catalunya","Exercir les funcions executives"], correcta:1, justificacio:"El Parlament representa el poble de Catalunya (art. 52 EAC).", mnemo:"Parlament → representar, com 'P'."},
+{id:35, pregunta:"Segons la CE, no es pot limitar el dret dels espanyols a entrar i sortir lliurement d'Espanya per motius:", opcions:["Polítics o ideològics","Polítics o econòmics","Socials o polítics"], correcta:0, justificacio:"L'art. 19 CE prohibeix la limitació per motius polítics o ideològics.", mnemo:"Polítics o ideològics → CE, com 'P'."},
+{id:36, pregunta:"Quina no es considera una competència pròpia del municipi?", opcions:["Ordenació del trànsit en vies interurbanes","Seguretat en llocs públics","Protecció civil"], correcta:0, justificacio:"El trànsit en vies interurbanes és competència estatal, no municipal.", mnemo:"Vies interurbanes → no municipal, com 'I'."},
+{id:37, pregunta:"Qui podrà accedir al seu autogovern i constituir-se en comunitat autònoma?", opcions:["Territoris amb entitat regional històrica","Províncies insulars","Províncies limítrofes amb característiques històriques, culturals i econòmiques comunes, territoris insulars i províncies d'entitat regional històrica"], correcta:2, justificacio:"L'art. 143 CE regula aquests supòsits.", mnemo:"Autogovern → tres supòsits, com '3'."},
+{id:38, pregunta:"Són retribucions bàsiques dels funcionaris locals:", opcions:["Sou, triennis i pagues extraordinàries","Sou, triennis, pagues extraordinàries i complements","Sou i triennis"], correcta:0, justificacio:"Les retribucions bàsiques són sou, triennis i pagues extraordinàries.", mnemo:"Retribucions bàsiques → sou, triennis, pagues, com 'S'."},
+{id:39, pregunta:"El permís per matrimoni d'un familiar fins al segon grau de consanguinitat o afinitat:", opcions:["És d'un dia de permís","És d'un dia, ampliable a dos dies si el matrimoni té lloc fora de Catalunya","És de dos dies"], correcta:1, justificacio:"El permís és d'un dia, ampliable a dos si és fora de Catalunya.", mnemo:"Matrimoni familiar → 1+1, com '1'."},
+{id:40, pregunta:"Els empleats públics locals:", opcions:["No tenen dret a formació contínua","Tenen dret si tenen més de dos anys d'antiguitat","Tenen dret a la formació contínua"], correcta:2, justificacio:"Tots els empleats públics tenen dret a la formació contínua.", mnemo:"Formació → tots, com 'T'."},
+{id:41, pregunta:"La detenció de persones menors d'edat per funcionaris de policia:", opcions:["No pot durar més del temps estrictament necessari","No pot durar més de 24h","Les dues respostes són correctes"], correcta:2, justificacio:"La detenció de menors no pot superar el temps necessari ni les 24h (LO 5/2000).", mnemo:"Menors → temps necessari i 24h, com '2'."},
+{id:42, pregunta:"L'Ordenança de Convivència Ciutadana de Martorell preveu que l'ocupació del domini públic amb taules i cadires serà:", opcions:["De l'1 de setembre al 30 d'abril, fins a les 23h (laborables) i 24h (divendres i vigílies)","Del 16 de setembre al 31 de maig, fins a les 22h (laborables) i 23h (divendres)","Del 16 de setembre al 31 de maig, fins a les 23h (laborables) i 24h (divendres)"], correcta:2, justificacio:"L'ordenança estableix l'horari indicat a l'opció c.", mnemo:"Martorell → taules i cadires, com 'M'."},
+{id:43, pregunta:"Quin és l'òrgan consultiu superior en matèria de coordinació entre Mossos i Policies Locals de Catalunya?", opcions:["Consell de Seguretat de Catalunya","Comissió de Policia de Catalunya","Comissió de Govern per a la Seguretat"], correcta:1, justificacio:"La Comissió de Policia de Catalunya és l'òrgan consultiu superior (Llei 4/2003).", mnemo:"Comissió → coordinació, com 'C'."},
+{id:44, pregunta:"Qui és el jutge competent per al procediment d'habeas corpus d'un menor detingut a Martorell?", opcions:["Jutjat d'Instrucció del lloc de detenció","Jutjat de Menors de Barcelona","Jutjat de Menors del domicili del menor"], correcta:1, justificacio:"El Jutjat de Menors de Barcelona és competent (art. 8 LO 5/2000).", mnemo:"Habeas corpus menor → Jutjat de Menors Barcelona, com 'B'."},
+{id:45, pregunta:"La LO 4/2015 preveu que a les persones desplaçades a dependències policials per identificar-les se'ls ha d'expedir:", opcions:["Volant amb temps i identitat dels agents","Volant amb temps i causa del trasllat","Volant amb temps, causa i identitat dels agents"], correcta:2, justificacio:"L'art. 16.2 LO 4/2015 exigeix volant amb temps, causa i identitat dels agents.", mnemo:"Volant → tres dades, com '3'."},
+{id:46, pregunta:"Quina norma defineix el concepte de 'proximitat'?", opcions:["Llei 16/1991","Acord GOV/25/2015 (Codi d'ètica)","No està previst"], correcta:1, justificacio:"El Codi d'ètica de la Policia de Catalunya defineix el concepte de proximitat.", mnemo:"Proximitat → Codi d'ètica, com 'C'."},
+{id:47, pregunta:"Poden els agents de policia local adoptar mesures provisionals en espectacles públics en casos d'urgència absoluta?", opcions:["Sí, comunicar en 48h","Sí, comunicar en 24h","Sí, informes intern"], correcta:1, justificacio:"S'han de comunicar en 24h a l'òrgan competent (Llei 11/2009).", mnemo:"24h → mesures provisionals, com '24'."},
+{id:48, pregunta:"Si una persona sostreu sense força ni violència un vehicle valorat en més de 400€ i el retorna a les 72h, incorre en:", opcions:["Delicte de furt","Delicte de robatori","Delicte de robatori i furt d'ús de vehicles"], correcta:0, justificacio:"És un delicte de furt d'ús (art. 244 CP).", mnemo:"Furt d'ús → 400€ i 72h, com 'F'."},
+{id:49, pregunta:"A Catalunya, en municipis de menys de 100.000 habitants...", opcions:["No es pot crear la categoria d'intendent","Es pot crear si ho aconsellen les característiques","Es pot crear si hi ha més de 100 agents i ho aconsellen les característiques"], correcta:2, justificacio:"Es pot crear la categoria d'intendent si es superen els 100 agents i ho aconsellen les característiques (Llei 16/1991).", mnemo:"100 agents → intendent, com '100'."},
+{id:50, pregunta:"Segons el Decret 179/2015, les faltes prescriuen:", opcions:["Molt greus:5 anys, greus:2 anys, lleus:1 mes","Molt greus:6 anys, greus:2 anys, lleus:1 mes","Molt greus:6 anys, greus:1 any, lleus:1 mes"], correcta:0, justificacio:"Les faltes molt greus prescriuen als 5 anys, les greus als 2 i les lleus al mes (Decret 179/2015).", mnemo:"5-2-1 → prescripció, com '5-2-1'."},
+{id:51, pregunta:"Quin principi bàsic d'actuació de la LO 2/1986 rebutja els actes de corrupció?", opcions:["Relacions amb la comunitat","Adequació a l'ordenament jurídic","Responsabilitat"], correcta:1, justificacio:"El principi d'adequació a l'ordenament jurídic rebutja la corrupció (art. 5 LO 2/1986).", mnemo:"Corrupció → adequació a l'ordenament, com 'A'."},
+{id:52, pregunta:"Quina és una infracció del Reglament de recàrrega de vehicles elèctrics de Martorell?", opcions:["Cessió de l'aplicatiu a tercers","Excedir-se en el temps de recàrrega","Les dues són correctes"], correcta:2, justificacio:"Ambdues són infraccions del reglament.", mnemo:"Recàrrega → dues infraccions, com '2'."},
+{id:53, pregunta:"La velocitat màxima per disseny dels VMP ha d'estar compresa entre:", opcions:["6 i 25 km/h","5 i 25 km/h","8 i 25 km/h"], correcta:0, justificacio:"Els VMP han de circular entre 6 i 25 km/h (RGC).", mnemo:"VMP → 6-25, com '6-25'."},
+{id:54, pregunta:"En quin carrer de Martorell es troba la Casa Gausà?", opcions:["Carrer Pere Puig","Carrer de Llosellas","Carrer de Josep Anselm Clavé"], correcta:1, justificacio:"La Casa Gausà es troba al carrer de Llosellas.", mnemo:"Gausà → Llosellas, com 'L'."},
+{id:55, pregunta:"En quin barri de Martorell es troba la Creu dels Caputxins?", opcions:["Barri de La Vila","Barri Font de la Mina","Barri de Can Bros"], correcta:0, justificacio:"La Creu dels Caputxins es troba al barri de La Vila.", mnemo:"Creu dels Caputxins → La Vila, com 'V'."},
+{id:56, pregunta:"Les infraccions de l'Ordenança d'animals de Martorell es sancionen amb multa de:", opcions:["150 a 600 euros","90 a 600 euros","100 a 600 euros"], correcta:0, justificacio:"Les multes van de 150 a 600 euros (Ordenança d'animals).", mnemo:"Animals → 150-600, com '150'."},
+{id:57, pregunta:"La persona responsable per la no utilització del casc pel passatger és:", opcions:["El passatger","El conductor i el passatger","El conductor"], correcta:2, justificacio:"El conductor és responsable (art. 11.2 Llei de Trànsit).", mnemo:"Casc → conductor, com 'C'."},
+{id:58, pregunta:"L'edat mínima per obtenir el permís de conduir motocicletes de 125 cc és:", opcions:["15 anys","16 anys","18 anys"], correcta:1, justificacio:"L'edat mínima per al permís A1 (125 cc) és de 16 anys.", mnemo:"125 cc → 16 anys, com '16'."},
+{id:59, pregunta:"En un control, el conductor mostra un duplicat del permís de circulació perquè va perdre l'original però el té a casa. Com procedirà?", opcions:["Immobilitzarà el vehicle","Intervindrà el duplicat i el remetrà al SCT","Informarà que ha de destruir l'original"], correcta:1, justificacio:"S'ha d'intervenir el duplicat i remetre'l al Servei Català de Trànsit.", mnemo:"Duplicat → remetre al SCT, com 'S'."},
+{id:60, pregunta:"Quin aspecte NO està regulat pel Reglament General de Circulació?", opcions:["Autoritzacions dels vehicles per circular","Normes generals de comportament","Àmbit d'aplicació de les normes sobre trànsit"], correcta:0, justificacio:"Les autoritzacions dels vehicles es regulen pel Reglament de Vehicles, no pel RGC.", mnemo:"Autoritzacions vehicles → no RGC, com 'A'."},
+{id:61, pregunta:"Segons l'Ordenança de convivència de Martorell, els treballs a la via pública només es poden realitzar:", opcions:["De dilluns a divendres 8-19h, dissabtes 9-14h","De dilluns a divendres 9-20h, dissabtes 9-14h","De dilluns a divendres 8-20h, dissabtes 9-14h"], correcta:0, justificacio:"L'ordenança estableix l'horari de l'opció a.", mnemo:"Treballs via pública → 8-19 i 9-14, com '8-19'."},
+{id:62, pregunta:"Segons l'Ordenança municipal de circulació de Martorell, l'estacionament d'autocaravanes i rulots:", opcions:["Prohibit >24h, no pernoctar","Prohibit >48h, no pernoctar","Totalment prohibit"], correcta:0, justificacio:"Està prohibit l'estacionament per més de 24h i la pernocta.", mnemo:"Autocaravanes → 24h, com '24'."},
+{id:63, pregunta:"Segons l'Ordenança de venda no sedentària de Martorell, el desmuntatge de les parades al mercat de Buenos Aires ha de finalitzar a les:", opcions:["15:30h","15:00h","16:00h"], correcta:0, justificacio:"El desmuntatge ha de finalitzar a les 15:30h.", mnemo:"Buenos Aires → 15:30, com '15:30'."},
+// RESERVA SEGONA PART (31-33)
+{id:64, pregunta:"Es reputa manifestament temerària la conducció quan se superi la velocitat establerta en:", opcions:["60 km/h en urbana o 80 km/h en interurbana","70 km/h en urbana o 80 km/h en interurbana","80 km/h en qualsevol via"], correcta:0, justificacio:"L'art. 380 CP considera temerària la conducció si se superen aquests límits.", mnemo:"Temerària → 60/80, com '6/8'."},
+{id:65, pregunta:"Qui comet agressió sexual, d'acord amb el CP?", opcions:["Qui realitza qualsevol acte contra la llibertat sexual sense consentiment","Qui fa actes sobre persones privades de sentit","Les dues són correctes"], correcta:2, justificacio:"Ambdues conductes són agressió sexual (arts. 178-180 CP).", mnemo:"Agressió sexual → dues, com '2'."},
+{id:66, pregunta:"Quina és la taxa màxima d'alcohol per a menors d'edat conductors?", opcions:["La mateixa que els majors","0 mg/l","0,5 mg/l"], correcta:1, justificacio:"Els menors d'edat tenen taxa 0 mg/l (LO 15/2007).", mnemo:"Menor conductor → 0 alcohol, com '0'."}
+];
+// Lògica del test
+let answers=new Array(PREGUNTES.length).fill(null), revealed=new Array(PREGUNTES.length).fill(false), currentIndex=0, mode='normal', wrongIndices=[];
+const $=id=>document.getElementById(id), questionArea=$('questionArea'), resultArea=$('resultArea'), progressLabel=$('progressLabel'), qNumber=$('qNumber'), questionStatus=$('questionStatus'), qText=$('qText'), optionsContainer=$('optionsContainer'), feedback=$('feedback'), badgeResult=$('badgeResult'), justificationText=$('justificationText'), mnemonicText=$('mnemonicText'), checkBtn=$('checkBtn'), nextBtn=$('nextBtn'), prevBtn=$('prevBtn'), resetBtn=$('resetBtn'), retryWrongBtn=$('retryWrongBtn'), finalScore=$('finalScore'), finalMessage=$('finalMessage'), resultDetail=$('resultDetail');
+function getCurrentQuestions(){if(mode==='retry'&&wrongIndices.length>0)return wrongIndices.map(i=>PREGUNTES[i]);return PREGUNTES;}
+function getCurrentAnswers(){if(mode==='retry'&&wrongIndices.length>0)return wrongIndices.map(i=>answers[i]);return answers;}
+function getCurrentRevealed(){if(mode==='retry'&&wrongIndices.length>0)return wrongIndices.map(i=>revealed[i]);return revealed;}
+function renderQuestion(index){const qs=getCurrentQuestions(), ans=getCurrentAnswers(), rev=getCurrentRevealed();if(index>=qs.length){showResults();return;}const q=qs[index], userAnswer=ans[index], isRevealed=rev[index], total=qs.length;progressLabel.textContent=index+1+' / '+total;qNumber.innerHTML='<span>Pregunta '+(index+1)+'</span><span id="questionStatus"></span>';if(isRevealed){const isCorrect=userAnswer===q.correcta;document.getElementById('questionStatus').textContent=isCorrect?'✅':'❌';}else{document.getElementById('questionStatus').textContent='';}qText.textContent=q.pregunta;optionsContainer.innerHTML='';const letters=['a','b','c'];q.opcions.forEach((text,i)=>{const div=document.createElement('div');div.className='option';if(userAnswer===i)div.classList.add('selected');if(isRevealed){div.classList.add('disabled');if(i===q.correcta)div.classList.add('correct');if(userAnswer===i&&i!==q.correcta)div.classList.add('wrong');}div.innerHTML='<span class="letter">'+letters[i]+'</span> '+text;div.dataset.index=i;if(!isRevealed){const handler=()=>selectOption(index,i);div.addEventListener('click',handler);div.addEventListener('touchstart',(e)=>{if(!e.target.closest('.option.disabled'))handler();},{passive:true});}optionsContainer.appendChild(div);});if(isRevealed){const isCorrect=userAnswer===q.correcta;badgeResult.textContent=isCorrect?'✅ Correcte':'❌ Incorrecte';badgeResult.className='badge '+(isCorrect?'correct-badge':'wrong-badge');justificationText.textContent=q.justificacio;mnemonicText.innerHTML='<strong>🧠 Truc:</strong> '+q.mnemo;feedback.classList.add('show');checkBtn.style.display='none';nextBtn.style.display='inline-block';}else{feedback.classList.remove('show');checkBtn.style.display='inline-block';nextBtn.style.display='none';}nextBtn.disabled=(index===total-1&&!isRevealed);prevBtn.disabled=(index===0);if(index===total-1&&isRevealed){nextBtn.textContent='📊 Resultat';nextBtn.onclick=showResults;}else{nextBtn.textContent='Següent →';nextBtn.onclick=()=>goTo(index+1);}}
+function selectOption(qIndex,optIndex){if(getCurrentRevealed()[qIndex])return;const ans=getCurrentAnswers();ans[qIndex]=optIndex;if(mode==='retry'&&wrongIndices.length>0){const originalIdx=wrongIndices[qIndex];answers[originalIdx]=optIndex;}renderQuestion(currentIndex);}
+function checkAnswer(){const qs=getCurrentQuestions(), ans=getCurrentAnswers(), rev=getCurrentRevealed(), idx=currentIndex;if(ans[idx]===null){alert('Selecciona una opció abans de comprovar.');return;}rev[idx]=true;if(mode==='retry'&&wrongIndices.length>0){const originalIdx=wrongIndices[idx];revealed[originalIdx]=true;}renderQuestion(currentIndex);}
+function goTo(index){const qs=getCurrentQuestions();if(index<0||index>=qs.length)return;currentIndex=index;renderQuestion(index);window.scrollTo({top:0,behavior:'auto'});}
+function showResults(){const total=PREGUNTES.length;let correctCount=0,wrongCount=0,unanswered=0,detall=[];for(let i=0;i<total;i++){const q=PREGUNTES[i], userAns=answers[i], isRevealed=revealed[i], isCorrect=userAns===q.correcta;if(!isRevealed){unanswered++;detall.push({index:i,q,userAns,isCorrect:false,status:'no respondida'});}else if(isCorrect){correctCount++;detall.push({index:i,q,userAns,isCorrect:true,status:'correcta'});}else{wrongCount++;detall.push({index:i,q,userAns,isCorrect:false,status:'fallada'});}}const percent=Math.round((correctCount/total)*100);finalScore.textContent=correctCount;let msg='';if(correctCount===total)msg='🏆 Perfecte! Excel·lent!';else if(correctCount>=total*0.8)msg='🌟 Molt bé!';else if(correctCount>=total*0.6)msg='👍 Bé, repassa les fallades.';else if(correctCount>=total*0.4)msg='📚 Necessites estudiar més.';else msg='💪 Torna a intentar-ho.';finalMessage.textContent=msg;let html='<div style="font-weight:600;margin-bottom:8px;">📋 Detall</div>';detall.forEach((item,idx)=>{const q=item.q,userLletra=item.userAns!==null?String.fromCharCode(65+item.userAns):'—',correctLletra=String.fromCharCode(65+q.correcta);let icon='',color='';if(item.status==='correcta'){icon='✅';color='#1e7e34';}else if(item.status==='fallada'){icon='❌';color='#b91c1c';}else{icon='⏭️';color='#64748b';}html+='<div class="result-item"><span style="color:'+color+';font-weight:600;">'+icon+' '+(idx+1)+'.</span> <strong>'+q.pregunta+'</strong><br><span style="font-size:13px;">Tria: '+userLletra+' | Correcta: '+correctLletra+'</span><br><span class="justif">💡 '+q.justificacio+'</span>'+(q.mnemo?'<br><span class="mnemo">🧠 '+q.mnemo+'</span>':'')+'</div>';});resultDetail.innerHTML=html;questionArea.classList.add('hidden');resultArea.classList.remove('hidden');const fallades=detall.filter(d=>d.status==='fallada').map(d=>d.index);if(fallades.length>0){retryWrongBtn.style.display='inline-block';retryWrongBtn.onclick=()=>startRetry(fallades);}else{retryWrongBtn.style.display='none';}}
+function startRetry(falladesIndices){if(falladesIndices.length===0)return;for(let idx of falladesIndices){answers[idx]=null;revealed[idx]=false;}mode='retry';wrongIndices=falladesIndices;currentIndex=0;resultArea.classList.add('hidden');questionArea.classList.remove('hidden');renderQuestion(0);window.scrollTo({top:0,behavior:'auto'});}
+function resetTest(){mode='normal';wrongIndices=[];currentIndex=0;answers=new Array(PREGUNTES.length).fill(null);revealed=new Array(PREGUNTES.length).fill(false);resultArea.classList.add('hidden');questionArea.classList.remove('hidden');renderQuestion(0);window.scrollTo({top:0,behavior:'auto'});}
+checkBtn.addEventListener('click',checkAnswer);checkBtn.addEventListener('touchstart',(e)=>{if(!e.target.disabled)checkAnswer();},{passive:true});prevBtn.addEventListener('click',()=>goTo(currentIndex-1));prevBtn.addEventListener('touchstart',(e)=>{if(!e.target.disabled)goTo(currentIndex-1);},{passive:true});resetBtn.addEventListener('click',resetTest);resetBtn.addEventListener('touchstart',resetTest,{passive:true});renderQuestion(0);
+</script>
+</body>
+</html>
