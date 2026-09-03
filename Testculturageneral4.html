@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Cultura General 4 · 50 preguntes</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif; background: #e9edf2; padding: 16px 12px 40px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; color: #1e293b; }
+        .container { max-width: 680px; width: 100%; background: #fff; border-radius: 32px; box-shadow: 0 12px 40px rgba(0,0,0,0.08); padding: 24px 20px 30px; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eef2f6; padding-bottom: 14px; margin-bottom: 22px; }
+        .header h1 { font-size: 22px; font-weight: 700; color: #0b2b4a; }
+        .header h1 small { font-size: 14px; font-weight: 400; color: #64748b; margin-left: 8px; }
+        .progress-badge { background: #dbe7f3; color: #0b2b4a; font-weight: 600; padding: 6px 16px; border-radius: 30px; font-size: 15px; white-space: nowrap; }
+        .question-number { font-weight: 700; color: #1a4b7a; font-size: 15px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+        .question-text { font-size: 20px; font-weight: 600; line-height: 1.4; margin-bottom: 24px; min-height: 3.2em; color: #0a1e32; }
+        .options { display: flex; flex-direction: column; gap: 12px; margin-bottom: 28px; }
+        .option { background: #f8fafc; border: 2px solid #dce2ea; border-radius: 16px; padding: 16px 20px; font-size: 17px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 14px; touch-action: manipulation; user-select: none; -webkit-user-select: none; transition: 0.15s; }
+        .option:active { transform: scale(0.98); }
+        .option .letter { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 50%; background: #dce2ea; color: #1e293b; font-weight: 700; font-size: 16px; flex-shrink: 0; }
+        .option.selected { border-color: #1a4b7a; background: #e6eff9; }
+        .option.selected .letter { background: #1a4b7a; color: white; }
+        .option.correct { border-color: #1e7e34; background: #e6f5ea; }
+        .option.correct .letter { background: #1e7e34; color: white; }
+        .option.wrong { border-color: #b91c1c; background: #fde8e8; }
+        .option.wrong .letter { background: #b91c1c; color: white; }
+        .option.disabled { pointer-events: none; opacity: 0.9; }
+        .option.disabled:active { transform: none; }
+        .feedback { background: #f1f5f9; border-radius: 18px; padding: 18px 20px; margin: 4px 0 24px; display: none; border-left: 6px solid #94a3b8; }
+        .feedback.show { display: block; }
+        .feedback .badge { display: inline-block; font-weight: 700; font-size: 15px; padding: 4px 18px; border-radius: 30px; margin-bottom: 10px; }
+        .badge.correct-badge { background: #d1f0d9; color: #0f5424; }
+        .badge.wrong-badge { background: #fcd5d5; color: #8b1a1a; }
+        .feedback .justification { font-size: 16px; line-height: 1.5; margin: 8px 0; }
+        .feedback .mnemonic { background: #fef7e0; border-radius: 14px; padding: 12px 16px; margin-top: 14px; font-size: 15px; border: 1px solid #f7d97a; color: #7a5800; }
+        .feedback .mnemonic strong { font-weight: 700; color: #5f4300; }
+        .actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 4px; }
+        .btn { flex: 1; min-width: 100px; background: #eef2f6; border: none; border-radius: 40px; padding: 14px 18px; font-weight: 600; font-size: 17px; color: #1e293b; cursor: pointer; transition: 0.15s; text-align: center; touch-action: manipulation; }
+        .btn:active { transform: scale(0.96); }
+        .btn-primary { background: #1a4b7a; color: white; box-shadow: 0 4px 12px rgba(26,75,122,0.25); }
+        .btn-primary:disabled { opacity: 0.5; pointer-events: none; box-shadow: none; }
+        .btn-secondary { background: #e2e8f0; }
+        .btn-success { background: #1e7e34; color: white; box-shadow: 0 4px 12px rgba(30,126,52,0.25); }
+        .btn-warning { background: #d97706; color: white; box-shadow: 0 4px 12px rgba(217,119,6,0.25); }
+        .result-box { text-align: center; padding: 20px 0 10px; }
+        .result-box .score { font-size: 60px; font-weight: 800; color: #0b2b4a; }
+        .result-box .label { font-size: 20px; color: #475569; margin-top: 4px; }
+        .result-box .message { margin-top: 16px; font-size: 18px; font-weight: 500; }
+        .result-detail { margin-top: 20px; text-align: left; max-height: 400px; overflow-y: auto; border-top: 1px solid #e2e8f0; padding-top: 16px; }
+        .result-item { padding: 10px 0; border-bottom: 1px solid #e9edf2; font-size: 14px; }
+        .result-item .justif { font-size: 13px; background: #f1f5f9; padding: 4px 10px; border-radius: 8px; margin-top: 4px; display: inline-block; }
+        .result-item .mnemo { font-size: 13px; background: #fef7e0; padding: 4px 10px; border-radius: 8px; margin-top: 4px; display: inline-block; border: 1px solid #f7d97a; }
+        .hidden { display: none !important; }
+        @media (max-width: 480px) { .container { padding: 18px 14px 22px; } .question-text { font-size: 18px; } .option { font-size: 15px; padding: 14px 16px; } .btn { font-size: 15px; padding: 12px 10px; min-width: 80px; } .header h1 { font-size: 19px; } }
+    </style>
+</head>
+<body>
+<div class="container" id="app">
+    <div class="header">
+        <h1>📚 Cultura General 4 <small>50 preguntes</small></h1>
+        <span class="progress-badge" id="progressLabel">1 / 50</span>
+    </div>
+    <div id="questionArea">
+        <div class="question-number"><span id="qNumber">Pregunta 1</span><span id="questionStatus"></span></div>
+        <div class="question-text" id="qText">Carregant...</div>
+        <div class="options" id="optionsContainer"></div>
+        <div class="feedback" id="feedback">
+            <div><span class="badge" id="badgeResult">✅ Correcte</span></div>
+            <div class="justification" id="justificationText"></div>
+            <div class="mnemonic" id="mnemonicText"><strong>🧠 Truc:</strong> </div>
+        </div>
+        <div class="actions">
+            <button class="btn btn-secondary" id="prevBtn" disabled>← Anterior</button>
+            <button class="btn btn-primary" id="checkBtn">Comprovar</button>
+            <button class="btn btn-primary" id="nextBtn" style="display:none;">Següent →</button>
+        </div>
+    </div>
+    <div id="resultArea" class="result-box hidden">
+        <div class="score" id="finalScore">0</div>
+        <div class="label">encerts de 50</div>
+        <div class="message" id="finalMessage">😊 Bon treball!</div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:16px;">
+            <button class="btn btn-success" id="resetBtn">🔄 Tornar a començar</button>
+            <button class="btn btn-warning" id="retryWrongBtn" style="display:none;">📝 Repetir fallades</button>
+        </div>
+        <div class="result-detail" id="resultDetail"></div>
+    </div>
+</div>
+<script>
+const PREGUNTES = [
+{id:1, pregunta:"Quina és la capital d'Estònia?", opcions:["Riga","Tallinn","Vilnius"], correcta:1, justificacio:"Tallinn és la capital d'Estònia.", mnemo:"Tallinn → Estònia, com 'T' de Tallinn."},
+{id:2, pregunta:"Quin és el país més extens de la Unió Europea?", opcions:["França","Alemanya","Espanya"], correcta:0, justificacio:"França és l'estat més extens de la UE si es considera el territori metropolità i ultramarí.", mnemo:"França → la més extensa, com 'F'."},
+{id:3, pregunta:"Quin és el riu més llarg de la península Ibèrica?", opcions:["Ebre","Tajo","Duero"], correcta:1, justificacio:"El Tajo és el riu més llarg de la península Ibèrica, amb uns 1.000 km.", mnemo:"Tajo → el més llarg, com 'T'."},
+{id:4, pregunta:"Quina és la capital d'Austràlia?", opcions:["Sydney","Melbourne","Canberra"], correcta:2, justificacio:"Canberra és la capital d'Austràlia.", mnemo:"Canberra → capital, com 'C'."},
+{id:5, pregunta:"Quin país limita amb Espanya al nord-oest, separada per l'oceà Atlàntic?", opcions:["Portugal","França","Itàlia"], correcta:0, justificacio:"Portugal limita amb Espanya a l'oest i nord-oest de la península Ibèrica.", mnemo:"Portugal → nord-oest, com 'P'."},
+{id:6, pregunta:"A quin continent es troba el desert del Sàhara?", opcions:["Àsia","Àfrica","Oceania"], correcta:1, justificacio:"El desert del Sàhara ocupa gran part del nord d'Àfrica.", mnemo:"Sàhara → Àfrica, com 'S'."},
+{id:7, pregunta:"Quina és la capital de Suïssa?", opcions:["Ginebra","Zuric","Berna"], correcta:2, justificacio:"Berna és la ciutat federal i capital de facto de Suïssa.", mnemo:"Berna → capital, com 'B'."},
+{id:8, pregunta:"Quin és l'estat més petit del món?", opcions:["Mònaco","Ciutat del Vaticà","San Marino"], correcta:1, justificacio:"La Ciutat del Vaticà és l'estat independent més petit del món.", mnemo:"Vaticà → el més petit, com 'V'."},
+{id:9, pregunta:"Quin mar separa Europa d'Àfrica a la zona de l'estret de Gibraltar?", opcions:["Mar Mediterrani","Mar Negre","Mar del Nord"], correcta:0, justificacio:"L'estret de Gibraltar connecta l'oceà Atlàntic amb el mar Mediterrani.", mnemo:"Mediterrani → separa Europa i Àfrica, com 'M'."},
+{id:10, pregunta:"Quin és el cim més alt d'Espanya?", opcions:["Mulhacén","Aneto","Teide"], correcta:2, justificacio:"El Teide, a Tenerife, amb 3.715 metres, és el cim més alt d'Espanya.", mnemo:"Teide → el més alt, com 'T'."},
+{id:11, pregunta:"Qui va ser president de la Generalitat de Catalunya entre 1980 i 2003?", opcions:["Jordi Pujol","Pasqual Maragall","José Montilla"], correcta:0, justificacio:"Jordi Pujol va ser president de la Generalitat entre 1980 i 2003.", mnemo:"Pujol → 1980-2003, com 'P'."},
+{id:12, pregunta:"En quin any va aprovar-se la Constitució espanyola actual?", opcions:["1975","1978","1981"], correcta:1, justificacio:"La Constitució va ser aprovada per les Corts el 31 d'octubre de 1978.", mnemo:"1978 → Constitució, com 'C'."},
+{id:13, pregunta:"Quin rei va impulsar el primer viatge de Cristòfor Colom que va arribar a Amèrica el 1492?", opcions:["Carles I","Ferran II d'Aragó","Felip II"], correcta:1, justificacio:"Ferran d'Aragó i Isabel de Castella van donar suport al projecte de Colom.", mnemo:"Ferran → Colom, com 'F'."},
+{id:14, pregunta:"Qui va ser Lluís Companys?", opcions:["President de la Generalitat de Catalunya","President de la República Francesa","Rei d'Aragó"], correcta:0, justificacio:"Lluís Companys va ser president de la Generalitat entre 1934-1940.", mnemo:"Companys → Generalitat, com 'C'."},
+{id:15, pregunta:"Quin esdeveniment va tenir lloc l'any 1789?", opcions:["La Revolució Francesa","La caiguda de l'Imperi Romà","El descobriment d'Amèrica"], correcta:0, justificacio:"La Revolució Francesa va començar el 1789.", mnemo:"1789 → Revolució Francesa, com 'R'."},
+{id:16, pregunta:"Quin emperador francès va ser derrotat definitivament a Waterloo?", opcions:["Lluís XIV","Napoleó Bonaparte","Carlemany"], correcta:1, justificacio:"Napoleó va ser derrotat definitivament a la batalla de Waterloo el 1815.", mnemo:"Napoleó → Waterloo, com 'N'."},
+{id:17, pregunta:"En quin any va finalitzar la Segona Guerra Mundial?", opcions:["1943","1945","1948"], correcta:1, justificacio:"La Segona Guerra Mundial va acabar l'any 1945.", mnemo:"1945 → final de la guerra, com 'F'."},
+{id:18, pregunta:"La paraula «exàmens» és:", opcions:["Aguda","Plana","Esdrúixola"], correcta:1, justificacio:"Exàmens té la síl·laba tònica en «xà»: ex-xà-mens.", mnemo:"Exàmens → plana, com 'P'."},
+{id:19, pregunta:"Quin és el plural correcte de «llapis»?", opcions:["Llapissos","Llapisos","Llapis"], correcta:2, justificacio:"Llapis és invariable en nombre: un llapis / dos llapis.", mnemo:"Llapis → invariable, com 'I'."},
+{id:20, pregunta:"En l'oració «El policia ha lliurat el document al ciutadà», quin és el complement indirecte?", opcions:["El policia","El document","Al ciutadà"], correcta:2, justificacio:"Al ciutadà és qui rep el document, per tant és el complement indirecte.", mnemo:"Al ciutadà → CI, com 'C'."},
+{id:21, pregunta:"Quina d'aquestes paraules és un adverbi?", opcions:["Lentament","Lent","Lentitud"], correcta:0, justificacio:"Lentament és un adverbi de manera.", mnemo:"Lentament → adverbi, com 'A'."},
+{id:22, pregunta:"«Hauran arribat» és:", opcions:["Futur perfet","Condicional perfet","Plusquamperfet"], correcta:0, justificacio:"Hauran arribat es forma amb el futur del verb haver + participi.", mnemo:"Futur perfet → hauran, com 'F'."},
+{id:23, pregunta:"Quina paraula és un adjectiu?", opcions:["Seguretat","Segur","Segurament"], correcta:1, justificacio:"Segur és un adjectiu; seguretat és substantiu i segurament adverbi.", mnemo:"Segur → adjectiu, com 'A'."},
+{id:24, pregunta:"Quina de les següents paraules és una preposició?", opcions:["Per","Molt","Però"], correcta:0, justificacio:"Per és una preposició.", mnemo:"Per → preposició, com 'P'."},
+{id:25, pregunta:"Quin és el sinònim més adequat de «iniciativa»?", opcions:["Inacció","Proactivitat","Desinterès"], correcta:1, justificacio:"La iniciativa implica capacitat d'actuar o proposar accions.", mnemo:"Proactivitat → iniciativa, com 'P'."},
+{id:26, pregunta:"Quin és el 30% de 250?", opcions:["65","75","85"], correcta:1, justificacio:"250 × 0,30 = 75.", mnemo:"30% de 250 → 75, com '7'."},
+{id:27, pregunta:"Un article costa 200 € i augmenta un 10%. Quin és el nou preu?", opcions:["210 €","220 €","230 €"], correcta:1, justificacio:"El 10% de 200 és 20; 200 + 20 = 220 €.", mnemo:"200 + 10% → 220, com '22'."},
+{id:28, pregunta:"Quants mil·límetres són 3,5 metres?", opcions:["350 mm","3.500 mm","35.000 mm"], correcta:1, justificacio:"1 metre = 1.000 mm; 3,5 × 1.000 = 3.500 mm.", mnemo:"3,5 m → 3.500 mm, com '35'."},
+{id:29, pregunta:"Una persona recorre 12 km en 2 hores. Quina és la seva velocitat mitjana?", opcions:["5 km/h","6 km/h","8 km/h"], correcta:1, justificacio:"12 km ÷ 2 hores = 6 km/h.", mnemo:"12/2 → 6, com '6'."},
+{id:30, pregunta:"Quina és la meitat de 3/4?", opcions:["3/8","1/2","2/4"], correcta:0, justificacio:"La meitat de 3/4 és 3/4 × 1/2 = 3/8.", mnemo:"3/4 ÷ 2 → 3/8, com '3/8'."},
+{id:31, pregunta:"Quin és el símbol químic de la plata?", opcions:["Pt","Ag","Au"], correcta:1, justificacio:"El símbol químic de la plata és Ag, del llatí argentum.", mnemo:"Ag → plata, com 'A'."},
+{id:32, pregunta:"Quin planeta és conegut com el planeta vermell?", opcions:["Mart","Venus","Júpiter"], correcta:0, justificacio:"Mart presenta una coloració vermellosa característica.", mnemo:"Mart → vermell, com 'M'."},
+{id:33, pregunta:"Quina part de la planta absorbeix principalment l'aigua i les sals minerals del sòl?", opcions:["Les fulles","Les arrels","Les flors"], correcta:1, justificacio:"Les arrels absorbeixen principalment l'aigua i les sals minerals del sòl.", mnemo:"Arrels → absorbeixen, com 'A'."},
+{id:34, pregunta:"Quin òrgan és responsable principalment de l'intercanvi de gasos durant la respiració?", opcions:["Els pulmons","Els ronyons","L'estómac"], correcta:0, justificacio:"Als alvèols pulmonars es produeix l'intercanvi d'oxigen i diòxid de carboni.", mnemo:"Pulmons → intercanvi de gasos, com 'P'."},
+{id:35, pregunta:"Com s'anomena el procés pel qual les plantes transformen energia lumínica en energia química?", opcions:["Digestió","Fotosíntesi","Fermentació"], correcta:1, justificacio:"Les plantes utilitzen energia lumínica per transformar aigua i CO₂ en matèria orgànica.", mnemo:"Fotosíntesi → llum, com 'F'."},
+{id:36, pregunta:"Qui va pintar Les Menines?", opcions:["Diego Velázquez","Francisco de Goya","El Greco"], correcta:0, justificacio:"Las Meninas és una de les obres més importants de Velázquez.", mnemo:"Velázquez → Menines, com 'V'."},
+{id:37, pregunta:"Qui va escriure L'ombra del vent?", opcions:["Carlos Ruiz Zafón","Arturo Pérez-Reverte","Javier Marías"], correcta:0, justificacio:"L'ombra del vent és una novel·la de Carlos Ruiz Zafón publicada el 2001.", mnemo:"Ruiz Zafón → ombra del vent, com 'R'."},
+{id:38, pregunta:"Quin moviment artístic està especialment relacionat amb Salvador Dalí?", opcions:["Surrealisme","Impressionisme","Neoclassicisme"], correcta:0, justificacio:"Salvador Dalí és un dels artistes més coneguts associats al surrealisme.", mnemo:"Dalí → surrealisme, com 'D'."},
+{id:39, pregunta:"Qui va escriure Canigó?", opcions:["Jacint Verdaguer","Josep Pla","Joan Maragall"], correcta:0, justificacio:"Canigó és un poema èpic de Jacint Verdaguer publicat el 1886.", mnemo:"Verdaguer → Canigó, com 'V'."},
+{id:40, pregunta:"Quin compositor és autor de la Novena Simfonia?", opcions:["Mozart","Beethoven","Bach"], correcta:1, justificacio:"La Novena Simfonia és una de les composicions més conegudes de Beethoven.", mnemo:"Beethoven → Novena, com 'B'."},
+{id:41, pregunta:"Quina és la capital de la Generalitat de Catalunya?", opcions:["Barcelona","Girona","Tarragona"], correcta:0, justificacio:"Barcelona és la capital de Catalunya i seu de les principals institucions de la Generalitat.", mnemo:"Barcelona → capital, com 'B'."},
+{id:42, pregunta:"Quin és el nombre de províncies de Catalunya?", opcions:["3","4","5"], correcta:1, justificacio:"Catalunya està dividida administrativament en quatre províncies.", mnemo:"4 províncies, com '4'."},
+{id:43, pregunta:"Quines són les quatre províncies catalanes?", opcions:["Barcelona, Girona, Lleida i Tarragona","Barcelona, Manresa, Girona i Tarragona","Barcelona, Lleida, Vic i Tarragona"], correcta:0, justificacio:"Les quatre províncies catalanes són Barcelona, Girona, Lleida i Tarragona.", mnemo:"Barcelona, Girona, Lleida, Tarragona → com 'BGLT'."},
+{id:44, pregunta:"Quina institució representa el poder legislatiu de l'Estat espanyol juntament amb el Senat?", opcions:["Congrés dels Diputats","Tribunal Constitucional","Consell d'Estat"], correcta:0, justificacio:"El Congrés forma, juntament amb el Senat, les Corts Generals, que exerceixen la potestat legislativa.", mnemo:"Congrés → legislatiu, com 'C'."},
+{id:45, pregunta:"A quin lloc conflueixen els rius Llobregat i Anoia?", opcions:["Martorell","Igualada","Sant Boi de Llobregat"], correcta:0, justificacio:"El riu Anoia desemboca al Llobregat al terme municipal de Martorell.", mnemo:"Martorell → confluència, com 'M'."},
+{id:46, pregunta:"Quin pont històric de Martorell és d'origen romà?", opcions:["Pont del Diable","Pont de la Vila","Pont Nou"], correcta:0, justificacio:"El Pont del Diable de Martorell és un pont històric d'origen romà.", mnemo:"Pont del Diable → romà, com 'P'."},
+{id:47, pregunta:"A quina comarca pertany Martorell?", opcions:["Baix Llobregat","Vallès Oriental","Alt Penedès"], correcta:0, justificacio:"Martorell pertany a la comarca del Baix Llobregat.", mnemo:"Baix Llobregat → Martorell, com 'B'."},
+{id:48, pregunta:"Quin municipi limita directament amb Martorell i es troba a l'altra banda del riu Llobregat?", opcions:["Castellbisbal","Esparreguera","Sant Andreu de la Barca"], correcta:0, justificacio:"Castellbisbal limita amb Martorell i queda al costat oposat del Llobregat.", mnemo:"Castellbisbal → Martorell, com 'C'."},
+{id:49, pregunta:"Quin riu passa per Martorell i desemboca al Llobregat en aquest municipi?", opcions:["Anoia","Foix","Tordera"], correcta:0, justificacio:"L'Anoia desemboca al Llobregat a Martorell.", mnemo:"Anoia → Martorell, com 'A'."},
+{id:50, pregunta:"Quin important eix viari romà passava pel territori de l'actual Martorell?", opcions:["Via Augusta","Via Sacra","Via Domitia"], correcta:0, justificacio:"La Via Augusta passava per la zona de Martorell, on el Pont del Diable facilitava el pas.", mnemo:"Via Augusta → Martorell, com 'V'."}
+];
+let answers=new Array(PREGUNTES.length).fill(null), revealed=new Array(PREGUNTES.length).fill(false), currentIndex=0, mode='normal', wrongIndices=[];
+const $=id=>document.getElementById(id), questionArea=$('questionArea'), resultArea=$('resultArea'), progressLabel=$('progressLabel'), qNumber=$('qNumber'), questionStatus=$('questionStatus'), qText=$('qText'), optionsContainer=$('optionsContainer'), feedback=$('feedback'), badgeResult=$('badgeResult'), justificationText=$('justificationText'), mnemonicText=$('mnemonicText'), checkBtn=$('checkBtn'), nextBtn=$('nextBtn'), prevBtn=$('prevBtn'), resetBtn=$('resetBtn'), retryWrongBtn=$('retryWrongBtn'), finalScore=$('finalScore'), finalMessage=$('finalMessage'), resultDetail=$('resultDetail');
+function getCurrentQuestions(){if(mode==='retry'&&wrongIndices.length>0)return wrongIndices.map(i=>PREGUNTES[i]);return PREGUNTES;}
+function getCurrentAnswers(){if(mode==='retry'&&wrongIndices.length>0)return wrongIndices.map(i=>answers[i]);return answers;}
+function getCurrentRevealed(){if(mode==='retry'&&wrongIndices.length>0)return wrongIndices.map(i=>revealed[i]);return revealed;}
+function renderQuestion(index){const qs=getCurrentQuestions(), ans=getCurrentAnswers(), rev=getCurrentRevealed();if(index>=qs.length){showResults();return;}const q=qs[index], userAnswer=ans[index], isRevealed=rev[index], total=qs.length;progressLabel.textContent=index+1+' / '+total;qNumber.innerHTML='<span>Pregunta '+(index+1)+'</span><span id="questionStatus"></span>';if(isRevealed){const isCorrect=userAnswer===q.correcta;document.getElementById('questionStatus').textContent=isCorrect?'✅':'❌';}else{document.getElementById('questionStatus').textContent='';}qText.textContent=q.pregunta;optionsContainer.innerHTML='';const letters=['a','b','c'];q.opcions.forEach((text,i)=>{const div=document.createElement('div');div.className='option';if(userAnswer===i)div.classList.add('selected');if(isRevealed){div.classList.add('disabled');if(i===q.correcta)div.classList.add('correct');if(userAnswer===i&&i!==q.correcta)div.classList.add('wrong');}div.innerHTML='<span class="letter">'+letters[i]+'</span> '+text;div.dataset.index=i;if(!isRevealed){const handler=()=>selectOption(index,i);div.addEventListener('click',handler);div.addEventListener('touchstart',(e)=>{if(!e.target.closest('.option.disabled'))handler();},{passive:true});}optionsContainer.appendChild(div);});if(isRevealed){const isCorrect=userAnswer===q.correcta;badgeResult.textContent=isCorrect?'✅ Correcte':'❌ Incorrecte';badgeResult.className='badge '+(isCorrect?'correct-badge':'wrong-badge');justificationText.textContent=q.justificacio;mnemonicText.innerHTML='<strong>🧠 Truc:</strong> '+q.mnemo;feedback.classList.add('show');checkBtn.style.display='none';nextBtn.style.display='inline-block';}else{feedback.classList.remove('show');checkBtn.style.display='inline-block';nextBtn.style.display='none';}nextBtn.disabled=(index===total-1&&!isRevealed);prevBtn.disabled=(index===0);if(index===total-1&&isRevealed){nextBtn.textContent='📊 Resultat';nextBtn.onclick=showResults;}else{nextBtn.textContent='Següent →';nextBtn.onclick=()=>goTo(index+1);}}
+function selectOption(qIndex,optIndex){if(getCurrentRevealed()[qIndex])return;const ans=getCurrentAnswers();ans[qIndex]=optIndex;if(mode==='retry'&&wrongIndices.length>0){const originalIdx=wrongIndices[qIndex];answers[originalIdx]=optIndex;}renderQuestion(currentIndex);}
+function checkAnswer(){const qs=getCurrentQuestions(), ans=getCurrentAnswers(), rev=getCurrentRevealed(), idx=currentIndex;if(ans[idx]===null){alert('Selecciona una opció abans de comprovar.');return;}rev[idx]=true;if(mode==='retry'&&wrongIndices.length>0){const originalIdx=wrongIndices[idx];revealed[originalIdx]=true;}renderQuestion(currentIndex);}
+function goTo(index){const qs=getCurrentQuestions();if(index<0||index>=qs.length)return;currentIndex=index;renderQuestion(index);window.scrollTo({top:0,behavior:'auto'});}
+function showResults(){const total=PREGUNTES.length;let correctCount=0,wrongCount=0,unanswered=0,detall=[];for(let i=0;i<total;i++){const q=PREGUNTES[i], userAns=answers[i], isRevealed=revealed[i], isCorrect=userAns===q.correcta;if(!isRevealed){unanswered++;detall.push({index:i,q,userAns,isCorrect:false,status:'no respondida'});}else if(isCorrect){correctCount++;detall.push({index:i,q,userAns,isCorrect:true,status:'correcta'});}else{wrongCount++;detall.push({index:i,q,userAns,isCorrect:false,status:'fallada'});}}const percent=Math.round((correctCount/total)*100);finalScore.textContent=correctCount;let msg='';if(correctCount===total)msg='🏆 Perfecte! Ets un expert!';else if(correctCount>=total*0.8)msg='🌟 Molt bé!';else if(correctCount>=total*0.6)msg='👍 Bé, repassa les fallades.';else if(correctCount>=total*0.4)msg='📚 Necessites estudiar més.';else msg='💪 Torna a intentar-ho.';finalMessage.textContent=msg;let html='<div style="font-weight:600;margin-bottom:8px;">📋 Detall</div>';detall.forEach((item,idx)=>{const q=item.q,userLletra=item.userAns!==null?String.fromCharCode(65+item.userAns):'—',correctLletra=String.fromCharCode(65+q.correcta);let icon='',color='';if(item.status==='correcta'){icon='✅';color='#1e7e34';}else if(item.status==='fallada'){icon='❌';color='#b91c1c';}else{icon='⏭️';color='#64748b';}html+='<div class="result-item"><span style="color:'+color+';font-weight:600;">'+icon+' '+(idx+1)+'.</span> <strong>'+q.pregunta+'</strong><br><span style="font-size:13px;">Tria: '+userLletra+' | Correcta: '+correctLletra+'</span><br><span class="justif">💡 '+q.justificacio+'</span>'+(q.mnemo?'<br><span class="mnemo">🧠 '+q.mnemo+'</span>':'')+'</div>';});resultDetail.innerHTML=html;questionArea.classList.add('hidden');resultArea.classList.remove('hidden');const fallades=detall.filter(d=>d.status==='fallada').map(d=>d.index);if(fallades.length>0){retryWrongBtn.style.display='inline-block';retryWrongBtn.onclick=()=>startRetry(fallades);}else{retryWrongBtn.style.display='none';}}
+function startRetry(falladesIndices){if(falladesIndices.length===0)return;for(let idx of falladesIndices){answers[idx]=null;revealed[idx]=false;}mode='retry';wrongIndices=falladesIndices;currentIndex=0;resultArea.classList.add('hidden');questionArea.classList.remove('hidden');renderQuestion(0);window.scrollTo({top:0,behavior:'auto'});}
+function resetTest(){mode='normal';wrongIndices=[];currentIndex=0;answers=new Array(PREGUNTES.length).fill(null);revealed=new Array(PREGUNTES.length).fill(false);resultArea.classList.add('hidden');questionArea.classList.remove('hidden');renderQuestion(0);window.scrollTo({top:0,behavior:'auto'});}
+checkBtn.addEventListener('click',checkAnswer);checkBtn.addEventListener('touchstart',(e)=>{if(!e.target.disabled)checkAnswer();},{passive:true});prevBtn.addEventListener('click',()=>goTo(currentIndex-1));prevBtn.addEventListener('touchstart',(e)=>{if(!e.target.disabled)goTo(currentIndex-1);},{passive:true});resetBtn.addEventListener('click',resetTest);resetBtn.addEventListener('touchstart',resetTest,{passive:true});renderQuestion(0);
+</script>
+</body>
+</html>
